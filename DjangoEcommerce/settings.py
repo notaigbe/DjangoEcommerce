@@ -81,7 +81,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'djangoecommerce.wsgi.application'
+WSGI_APPLICATION = 'DjangoEcommerce.wsgi.application'
 
 
 # Database
