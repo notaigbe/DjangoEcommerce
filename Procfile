@@ -1,1 +1,1 @@
-web: gunicorn farmfresh.wsgi
+web: gunicorn DjangoEcommerce.wsgi
