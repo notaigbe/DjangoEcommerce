@@ -110,11 +110,11 @@ button:hover {
 
         <div class="col-md-12 mb-4">
           <div class="card">
-
+            <button class="btn btn-warning" onclick="makePayment()">Pay Now</button>
             <script src="https://js.stripe.com/v3/"></script>
 
-            <div class="new-card-form">
-              <form action="." method="post" class="stripe-form" id="stripe-form">
+            <!--div class="new-card-form">
+              <form action="https://checkout.flutterwave.com/v3/hosted/pay" method="post" class="stripe-form" id="stripe-form">
                   {% csrf_token %}
                   <div class="stripe-form-row" id="creditCard">
                       <label for="card-element" id="stripeBtnLabel">
@@ -133,7 +133,7 @@ button:hover {
                   </div>
                   <div id="card-errors" role="alert"></div>
               </form>
-            </div>
+            </div-->
 
           </div>
         </div>
@@ -169,7 +169,7 @@ button:hover {
               <span class="text-success">-$0</span>
             </li> {% endcomment %}
             <li class="list-group-item d-flex justify-content-between">
-              <span>Total (USD)</span>
+              <span>Total (NGN)</span>
               <strong>{{ order.get_total_price }}</strong>
             </li>
           </ul>
@@ -184,7 +184,35 @@ button:hover {
 
 {% endblock content %}
 
-{% block extra_scripts %}
+{% block extra_script %}
+<script src="https://checkout.flutterwave.com/v3.js"></script>
+	<script>
+	  function makePayment() {
+	  const rand = Math.random().toString(20).substr(2, 8); // 6de5ccda
+		FlutterwaveCheckout({
+		  public_key: "FLWPUBK_TEST-40d34d2a9d030a481ae3fb1faae3b9ba-X",
+		  tx_ref: "tacommodity-farmfresh-"+rand,
+		  amount: {{ order.get_total_price }},
+		  currency: "NGN",
+		  payment_options: "card, banktransfer, ussd",
+		  redirect_url: "/complete_payment",
+		  meta: {
+			consumer_id: 1,
+			consumer_mac: "92a3-912ba-1192a",
+		  },
+		  customer: {
+			email: "{{ request.user.email}}",
+			phone_number: "{{ request.user.phone }}",
+			name: "{{ request.user.firstname }} {{ request.user.lastname }}",
+		  },
+		  customizations: {
+			title: "Farmfresh Checkout",
+			description: "Order for {{ order_item.quantity }} items",
+			logo: "",
+		  },
+		});
+	  }
+	</script>
 
 <script nonce="">  // Create a Stripe client.
   var stripe = Stripe('');
@@ -272,4 +300,4 @@ button:hover {
 
 </script>
 
-{% endblock extra_scripts %}
+{% endblock extra_script %}

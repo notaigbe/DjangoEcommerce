@@ -6,17 +6,22 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views.generic import ListView, DetailView, View
 from django.utils import timezone
+from rave_python import Rave
+from rave_python.rave_exceptions import TransactionVerificationError
+
 from .forms import CheckoutForm
 from .models import (
     Item,
     Order,
     OrderItem,
     CheckoutAddress,
-    Payment
+    Payment, Deal
 )
 
 import stripe
+
 stripe.api_key = settings.STRIPE_KEY
+
 
 # Create your views here.
 class HomeView(ListView):
@@ -28,6 +33,7 @@ class ProductView(DetailView):
     model = Item
     template_name = "product.html"
 
+
 class OrderSummaryView(LoginRequiredMixin, View):
     def get(self, *args, **kwargs):
 
@@ -38,8 +44,9 @@ class OrderSummaryView(LoginRequiredMixin, View):
             }
             return render(self.request, 'order_summary.html', context)
         except ObjectDoesNotExist:
-            messages.error(self.request, "You do not have an order")
+            messages.info(self.request, "You do not have an order")
             return redirect("/")
+
 
 class CheckoutView(View):
     def get(self, *args, **kwargs):
@@ -53,7 +60,7 @@ class CheckoutView(View):
 
     def post(self, *args, **kwargs):
         form = CheckoutForm(self.request.POST or None)
-        
+
         try:
             order = Order.objects.get(user=self.request.user, ordered=False)
             if form.is_valid():
@@ -61,7 +68,7 @@ class CheckoutView(View):
                 apartment_address = form.cleaned_data.get('apartment_address')
                 country = form.cleaned_data.get('country')
                 zip = form.cleaned_data.get('zip')
-                # TODO: add functionaly for these fields
+                # TODO: add functionality for these fields
                 # same_billing_address = form.cleaned_data.get('same_billing_address')
                 # save_info = form.cleaned_data.get('save_info')
                 payment_option = form.cleaned_data.get('payment_option')
@@ -81,6 +88,8 @@ class CheckoutView(View):
                     return redirect('core:payment', payment_option='stripe')
                 elif payment_option == 'P':
                     return redirect('core:payment', payment_option='paypal')
+                elif payment_option == 'F':
+                    return redirect('core:payment', payment_option='flutterwave')
                 else:
                     messages.warning(self.request, "Invalid Payment option")
                     return redirect('core:checkout')
@@ -88,6 +97,7 @@ class CheckoutView(View):
         except ObjectDoesNotExist:
             messages.error(self.request, "You do not have an order")
             return redirect("core:order-summary")
+
 
 class PaymentView(View):
     def get(self, *args, **kwargs):
@@ -100,7 +110,7 @@ class PaymentView(View):
     def post(self, *args, **kwargs):
         order = Order.objects.get(user=self.request.user, ordered=False)
         token = self.request.POST.get('stripeToken')
-        amount = int(order.get_total_price() * 100)  #cents
+        amount = int(order.get_total_price() * 100)  # cents
 
         try:
             charge = stripe.Charge.create(
@@ -156,23 +166,49 @@ class PaymentView(View):
             # yourself an email
             messages.error(self.request, "Something went wrong")
             return redirect('/')
-        
+
         except Exception as e:
             # Something else happened, completely unrelated to Stripe
             messages.error(self.request, "Not identified error")
             return redirect('/')
 
-        
 
-        
+@login_required
+def complete_payment(request):
+    order = Order.objects.get(user=request.user, ordered=False)
+    token = request.GET.get('transaction_id')
+    amount = int(order.get_total_price() * 100)  # cents
+
+    try:
+
+        # create payment
+        payment = Payment()
+        payment.transaction_id = token
+        payment.user = request.user
+        payment.amount = order.get_total_price()
+        payment.save()
+
+        # assign payment to order
+        order.ordered = True
+        order.payment = payment
+        order.save()
+
+        messages.success(request, "Your order was successful")
+        return redirect('/')
+
+    except Exception as e:
+        # Something else happened, completely unrelated to Stripe
+        messages.error(request, "Not identified error")
+        return redirect('/')
+
 
 @login_required
 def add_to_cart(request, pk):
-    item = get_object_or_404(Item, pk=pk )
+    item = get_object_or_404(Item, pk=pk)
     order_item, created = OrderItem.objects.get_or_create(
-        item = item,
-        user = request.user,
-        ordered = False
+        item=item,
+        user=request.user,
+        ordered=False
     )
     order_qs = Order.objects.filter(user=request.user, ordered=False)
 
@@ -195,11 +231,12 @@ def add_to_cart(request, pk):
         messages.info(request, "Item added to your cart")
         return redirect("core:order-summary")
 
+
 @login_required
 def remove_from_cart(request, pk):
-    item = get_object_or_404(Item, pk=pk )
+    item = get_object_or_404(Item, pk=pk)
     order_qs = Order.objects.filter(
-        user=request.user, 
+        user=request.user,
         ordered=False
     )
     if order_qs.exists():
@@ -211,31 +248,31 @@ def remove_from_cart(request, pk):
                 ordered=False
             )[0]
             order_item.delete()
-            messages.info(request, "Item \""+order_item.item.item_name+"\" remove from your cart")
+            messages.info(request, "Item \"" + order_item.item.item_name + "\" remove from your cart")
             return redirect("core:order-summary")
         else:
             messages.info(request, "This Item not in your cart")
             return redirect("core:product", pk=pk)
     else:
-        #add message doesnt have order
+        # add message doesn't have order
         messages.info(request, "You do not have an Order")
-        return redirect("core:product", pk = pk)
+        return redirect("core:product", pk=pk)
 
 
 @login_required
 def reduce_quantity_item(request, pk):
-    item = get_object_or_404(Item, pk=pk )
+    item = get_object_or_404(Item, pk=pk)
     order_qs = Order.objects.filter(
-        user = request.user, 
-        ordered = False
+        user=request.user,
+        ordered=False
     )
     if order_qs.exists():
         order = order_qs[0]
-        if order.items.filter(item__pk=item.pk).exists() :
+        if order.items.filter(item__pk=item.pk).exists():
             order_item = OrderItem.objects.filter(
-                item = item,
-                user = request.user,
-                ordered = False
+                item=item,
+                user=request.user,
+                ordered=False
             )[0]
             if order_item.quantity > 1:
                 order_item.quantity -= 1
@@ -248,6 +285,30 @@ def reduce_quantity_item(request, pk):
             messages.info(request, "This Item not in your cart")
             return redirect("core:order-summary")
     else:
-        #add message doesnt have order
+        # add message doesn't have order
         messages.info(request, "You do not have an Order")
         return redirect("core:order-summary")
+
+
+def index(request):
+    products = Order.objects.all()
+    deal = Deal.objects.filter(pk=1)
+    return render(request, 'index_2.html', {'page': 'index', 'products': products, 'deal': deal})
+
+
+def verify_payment(request):
+    print(request.user)
+    status = request.GET.get('status')
+    transaction_id = request.GET.get('transaction_id')
+    tx_ref = request.GET.get('tx_ref')
+    try:
+        rave = Rave('RAVE_PUBLIC_KEY', 'RAVE_SECRET_KEY')
+        res = rave.Card.verify(tx_ref)
+
+        messages.success(request, f'Payment {status}')
+
+    except TransactionVerificationError as e:
+        messages.error(request, f'Payment {status} {e.err["errMsg"]}')
+        print(e.err["errMsg"])
+        print(e.err["flwRef"])
+    return redirect('/')

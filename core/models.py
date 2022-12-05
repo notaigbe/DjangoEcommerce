@@ -4,15 +4,16 @@ from django.shortcuts import reverse
 from django_countries.fields import CountryField
 
 CATEGORY = (
-    ('S', 'Shirt'),
-    ('SP', 'Sport Wear'),
-    ('OW', 'Out Wear')
+    ('S', 'Fish'),
+    ('SP', 'Palm Oil'),
+    ('OW', 'Honey')
 )
 
 LABEL = (
     ('N', 'New'),
-    ('BS', 'Best Seller')
+    ('BS', 'Discount')
 )
+
 
 class Item(models.Model):
     item_name = models.CharField(max_length=100)
@@ -21,25 +22,27 @@ class Item(models.Model):
     category = models.CharField(choices=CATEGORY, max_length=2)
     label = models.CharField(choices=LABEL, max_length=2)
     description = models.TextField()
+    image = models.ImageField(upload_to='troika/farmfresh/products/', default='troika/farmfresh/products/default.jpg')
 
     def __str__(self):
         return self.item_name
 
     def get_absolute_url(self):
         return reverse("core:product", kwargs={
-            "pk" : self.pk
-        
+            "pk": self.pk
+
         })
 
     def get_add_to_cart_url(self):
         return reverse("core:add-to-cart", kwargs={
-            "pk" : self.pk
+            "pk": self.pk
         })
 
     def get_remove_from_cart_url(self):
         return reverse("core:remove-from-cart", kwargs={
-            "pk" : self.pk
+            "pk": self.pk
         })
+
 
 class OrderItem(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL,
@@ -64,8 +67,7 @@ class OrderItem(models.Model):
         if self.item.discount_price:
             return self.get_discount_item_price()
         return self.get_total_item_price()
-    
-    
+
 
 class Order(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
@@ -80,7 +82,7 @@ class Order(models.Model):
 
     def __str__(self):
         return self.user.username
-    
+
     def get_total_price(self):
         total = 0
         for order_item in self.items.all():
@@ -97,14 +99,28 @@ class CheckoutAddress(models.Model):
 
     def __str__(self):
         return self.user.username
-    
+
+
 class Payment(models.Model):
-    stripe_id = models.CharField(max_length=50)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, 
+    transaction_id = models.CharField(max_length=50)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,
                              on_delete=models.SET_NULL, blank=True, null=True)
     amount = models.FloatField()
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.user.username
-    
+
+
+class Deal(models.Model):
+    PACKAGE = (('0', 'Kg'), ('1', 'bag'), ('2', 'bottle'), ('3', 'tonne'), ('4', 'bunch'))
+    name = models.CharField(max_length=255)
+    image = models.ImageField(upload_to='troika/deals/')
+    price = models.FloatField()
+    packaging = models.CharField(choices=PACKAGE, max_length=6, default=0)
+    deal = models.IntegerField()
+    title = models.CharField(max_length=50)
+    description = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.name

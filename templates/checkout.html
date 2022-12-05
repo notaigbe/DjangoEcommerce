@@ -81,7 +81,7 @@
               </div>
              
               <hr class="mb-4">
-              <button class="btn btn-primary btn-lg btn-block" type="submit">Continue to checkout</button>
+              <button class="btn btn-primary btn-lg btn-block" type="submit" onclick="makePayment();">Continue to checkout</button>
 
             </form>
 
@@ -122,7 +122,7 @@
               <span class="text-success">-$0</span>
             </li> {% endcomment %}
             <li class="list-group-item d-flex justify-content-between">
-              <span>Total (USD)</span>
+              <span>Total (NGN)</span>
               <strong>{{ order.get_total_price }}</strong>
             </li>
           </ul>
@@ -138,3 +138,34 @@
   <!--Main layout-->
 
 {% endblock content %}
+
+{% block extra_script %}
+	<script src="https://checkout.flutterwave.com/v3.js"></script>
+	<script>
+	  function makePayment() {
+	  const rand = Math.random().toString(20).substr(2, 8); // 6de5ccda
+		FlutterwaveCheckout({
+		  public_key: "FLWPUBK_TEST-40d34d2a9d030a481ae3fb1faae3b9ba-X",
+		  tx_ref: "tacommodity-farmfresh-gnote-"+rand,
+		  amount: {{ order.get_total_price }},
+		  currency: "NGN",
+		  payment_options: "card, banktransfer, ussd",
+		  redirect_url: "localhost:8000/verify_payment",
+		  meta: {
+			consumer_id: 1,
+			consumer_mac: "92a3-912ba-1192a",
+		  },
+		  customer: {
+			email: "{{ request.user.email}}",
+			phone_number: "{{ request.user.phone }}",
+			name: "{{ request.user.firstname }} {{ request.user.lastname }}",
+		  },
+		  customizations: {
+			title: "Farmfresh Checkout",
+			description: "Order for {{ order_item.quantity }} items",
+			logo: "",
+		  },
+		});
+	  }
+	</script>
+{% endblock extra_script %}

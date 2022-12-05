@@ -1,10 +1,10 @@
 {% extends 'base.html' %}
-
+{% load static %}
 {% block content %}
 
 
 <!--Carousel Wrapper-->
-  <div id="carousel-example-1z" class="carousel slide carousel-fade pt-4" data-ride="carousel">
+  <div id="carousel-example-1z" class="carousel slide carousel-slide" data-ride="carousel">
 
     <!--Indicators-->
     <ol class="carousel-indicators">
@@ -19,31 +19,28 @@
 
       <!--First slide-->
       <div class="carousel-item active">
-        <div class="view" style="background-image: url('https://mdbootstrap.com/img/Photos/Horizontal/E-commerce/8-col/img%282%29.jpg'); background-repeat: no-repeat; background-size: cover;">
+        <div class="view" style="background-image: url('{% static 'assets/img/smoked-fish.jpg' %}'); background-repeat: no-repeat; background-size: cover;">
 
           <!-- Mask & flexbox options-->
           <div class="mask rgba-black-strong d-flex justify-content-center align-items-center">
 
             <!-- Content -->
-            <div class="text-center white-text mx-5 wow fadeIn">
-              <h1 class="mb-4">
-                <strong>Learn Bootstrap 4 with MDB</strong>
-              </h1>
+            <div class="row">
+					<div class="col-md-12 col-lg-7 offset-lg-1 offset-xl-0">
+						<div class="hero-text">
+							<div class="hero-text-tablecell">
+								<p class="subtitle">Smoked Catfish</p>
+								<h1>Premium Packaged</h1>
+								<div class="hero-btns">
 
-              <p>
-                <strong>Best & free guide of responsive web design</strong>
-              </p>
+								</div>
 
-              <p class="mb-4 d-none d-md-block">
-                <strong>The most comprehensive tutorial for the Bootstrap 4. Loved by over 500 000 users. Video and
-                  written versions
-                  available. Create your own, stunning website.</strong>
-              </p>
-
-              <a target="_blank" href="https://mdbootstrap.com/education/bootstrap/" class="btn btn-outline-white btn-lg">Start
-                free tutorial
-                <i class="fas fa-graduation-cap ml-2"></i>
-              </a>
+							</div>
+						</div>
+                    </div>
+                    <div class="col-md-12 col-lg-4 offset-lg-1 offset-xl-0">
+                      <a href="https://www.youtube.com/watch?v=sYFQg1s0-AE" class="video-play-btn popup-youtube"><i class="fas fa-play"></i></a>
+					</div>
             </div>
             <!-- Content -->
 
@@ -56,32 +53,28 @@
 
       <!--Second slide-->
       <div class="carousel-item">
-        <div class="view" style="background-image: url('https://mdbootstrap.com/img/Photos/Horizontal/E-commerce/8-col/img%283%29.jpg'); background-repeat: no-repeat; background-size: cover;">
+        <div class="view" style="background-image: url('{% static 'assets/img/bee-keepers.webp' %}'); background-repeat: no-repeat; background-size: cover;">
 
           <!-- Mask & flexbox options-->
           <div class="mask rgba-black-strong d-flex justify-content-center align-items-center">
 
             <!-- Content -->
-            <div class="text-center white-text mx-5 wow fadeIn">
-              <h1 class="mb-4">
-                <strong>Learn Bootstrap 4 with MDB</strong>
-              </h1>
+            <div class="row">
+					<div class="col-lg-10 offset-lg-1 text-center">
+						<div class="hero-text">
+							<div class="hero-text-tablecell">
+								<p class="subtitle">Palm Plantation Honey</p>
+								<h1>100% Natural</h1>
+								<div class="hero-btns">
 
-              <p>
-                <strong>Best & free guide of responsive web design</strong>
-              </p>
-
-              <p class="mb-4 d-none d-md-block">
-                <strong>The most comprehensive tutorial for the Bootstrap 4. Loved by over 500 000 users. Video and
-                  written versions
-                  available. Create your own, stunning website.</strong>
-              </p>
-
-              <a target="_blank" href="https://mdbootstrap.com/education/bootstrap/" class="btn btn-outline-white btn-lg">Start
-                free tutorial
-                <i class="fas fa-graduation-cap ml-2"></i>
-              </a>
-            </div>
+								</div>
+							</div>
+						</div>
+					</div>
+                    <div class="col-lg-12 offset-lg-1 offset-xl-0">
+                      <a href="https://www.youtube.com/watch?v=kOkE0a0uXr4" class="video-play-btn popup-youtube"><i class="fas fa-play"></i></a>
+					</div>
+				</div>
             <!-- Content -->
 
           </div>
@@ -93,32 +86,29 @@
 
       <!--Third slide-->
       <div class="carousel-item">
-        <div class="view" style="background-image: url('https://mdbootstrap.com/img/Photos/Horizontal/E-commerce/8-col/img%285%29.jpg'); background-repeat: no-repeat; background-size: cover;">
+        <div class="view" style="background-image: url('{% static 'assets/img/palm-oil.webp' %}'); background-repeat: no-repeat; background-size: cover;">
 
           <!-- Mask & flexbox options-->
           <div class="mask rgba-black-strong d-flex justify-content-center align-items-center">
 
             <!-- Content -->
-            <div class="text-center white-text mx-5 wow fadeIn">
-              <h1 class="mb-4">
-                <strong>Learn Bootstrap 4 with MDB</strong>
-              </h1>
+              <div class="row">
 
-              <p>
-                <strong>Best & free guide of responsive web design</strong>
-              </p>
+					<div class="col-lg-10 offset-lg-1 text-right">
+						<div class="hero-text">
+							<div class="hero-text-tablecell">
+								<p class="subtitle">Fresh Fruit Bunches</p>
+								<h1>Premium processed palm oil</h1>
+								<div class="hero-btns">
 
-              <p class="mb-4 d-none d-md-block">
-                <strong>The most comprehensive tutorial for the Bootstrap 4. Loved by over 500 000 users. Video and
-                  written versions
-                  available. Create your own, stunning website.</strong>
-              </p>
-
-              <a target="_blank" href="https://mdbootstrap.com/education/bootstrap/" class="btn btn-outline-white btn-lg">Start
-                free tutorial
-                <i class="fas fa-graduation-cap ml-2"></i>
-              </a>
-            </div>
+								</div>
+							</div>
+						</div>
+					</div>
+                  <div class="col-lg-12 offset-lg-1 offset-xl-0">
+                      <a href="https://www.youtube.com/watch?v=EyWhzWh6Sa8" class="video-play-btn popup-youtube"><i class="fas fa-play"></i></a>
+					</div>
+				</div>
             <!-- Content -->
 
           </div>
@@ -144,11 +134,11 @@
 
   </div>
 
-<main>
+<section id="main">
     <div class="container">
 
       <!--Navbar-->
-      <nav class="navbar navbar-expand-lg navbar-dark mdb-color lighten-3 mt-3 mb-5">
+      <nav class="navbar navbar-expand-lg navbar-light mt-3 mb-5 rounded">
 
         <!-- Navbar brand -->
         <span class="navbar-brand">Categories:</span>
@@ -170,13 +160,13 @@
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="#">Shirts</a>
+              <a class="nav-link" href="#">Fish</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="#">Sport wears</a>
+              <a class="nav-link" href="#">Honey</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="#">Outwears</a>
+              <a class="nav-link" href="#">Palm Oil</a>
             </li>
 
           </ul>
@@ -207,7 +197,7 @@
 
               <!--Card image-->
               <div class="view overlay">
-                <img src="https://mdbootstrap.com/img/Photos/Horizontal/E-commerce/Vertical/12.jpg" class="card-img-top"
+                <img src="{{ item.image.url }}" class="card-img-top"
                   alt="">
                 <a href="{{ item.get_absolute_url }}">
                   <div class="mask rgba-white-slight"></div>
@@ -228,8 +218,8 @@
                   </strong>
                 </h5>
 
-                <h4 class="font-weight-bold blue-text">
-                  <strong>$
+                <h4 class="font-weight-bold orange-text" style="color:#051922;">
+                  <strong><sup>N</sup>
                   {% if item.discount_price %}
                   {{ item.discount_price }}
                   {% else %}
@@ -257,11 +247,11 @@
       <!--Section: Products v.3-->
 
       <!--Pagination-->
-      <nav class="d-flex justify-content-center wow fadeIn">
-        <ul class="pagination pg-blue">
+      <!--nav class="d-flex justify-content-center wow fadeIn">
+        <ul class="pagination pg-blue"-->
 
           <!--Arrow left-->
-          <li class="page-item disabled">
+          <!--li class="page-item disabled">
             <a class="page-link" href="#" aria-label="Previous">
               <span aria-hidden="true">&laquo;</span>
               <span class="sr-only">Previous</span>
@@ -293,11 +283,12 @@
             </a>
           </li>
         </ul>
-      </nav>
+      </nav-->
       <!--Pagination-->
 
     </div>
-  </main>
+  </section>
   <!--Main layout-->
 
 {% endblock content %}
+
