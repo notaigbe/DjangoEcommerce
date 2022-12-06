@@ -15,6 +15,14 @@
 	<script src="{% static 'assets/js/jquery.magnific-popup.min.js' %}"></script>
 	<!-- main js -->
 	<script src="{% static 'assets/js/main.js' %}"></script>
+  <script async src='https://d2mpatx37cqexb.cloudfront.net/delightchat-whatsapp-widget/embeds/embed.min.js'></script>
+        <script>
+          var wa_btnSetting = {"btnColor":"#051922","ctaText":"enquiry","cornerRadius":40,"marginBottom":20,"marginLeft":20,"marginRight":20,"btnPosition":"left","whatsAppNumber":"2348026031639","welcomeMessage":"","zIndex":999999,"btnColorScheme":"light"};
+          var wa_widgetSetting = {"title":"TA Commodity","subTitle":"Typically replies in a day","headerBackgroundColor":"#051922","headerColorScheme":"light","greetingText":"Hi there!","ctaText":"Start Chat","btnColor":"#f28123","cornerRadius":40,"welcomeMessage":"Hello","btnColorScheme":"light","brandImage":"{% static 'assets/img/favicon.png' %}","darkHeaderColorScheme":{"title":"#67b0d1","subTitle":"#67b0d1"}};
+          window.onload = () => {
+            _waEmbed(wa_btnSetting, wa_widgetSetting);
+          };
+        </script>
 <!-- Initializations -->
 <script type="text/javascript">
 // Animations initialization
