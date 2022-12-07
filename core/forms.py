@@ -1,6 +1,10 @@
 from django import forms
 from django_countries.fields import CountryField
 from django_countries.widgets import CountrySelectWidget
+from django import forms
+from django.contrib.auth.models import User
+from django.contrib.auth import authenticate, get_user_model
+from django.contrib.auth.forms import UserCreationForm
 
 PAYMENT = (
     ('S', 'Stripe'),
@@ -32,3 +36,71 @@ class CheckoutForm(forms.Form):
     save_info = forms.BooleanField(required=False)
     payment_option = forms.ChoiceField(
         widget=forms.RadioSelect, choices=PAYMENT)
+
+
+class RegistrationForm(UserCreationForm):
+    """
+      Form for Registering new users
+    """
+    email = forms.EmailField(max_length=60, help_text='Required. Add a valid email address')
+
+    class Meta:
+        model = get_user_model()
+        fields = ('first_name', 'last_name', 'email', 'username', 'password1', 'password2')
+
+
+class AccountAuthenticationForm(forms.ModelForm):
+    """
+      Form for Logging in  users
+    """
+    password = forms.CharField(label='Password', widget=forms.PasswordInput)
+
+    class Meta:
+        model = get_user_model()
+        fields = ('email', 'password')
+        widgets = {
+            'email': forms.TextInput(attrs={'class': 'form-control'}),
+            'password': forms.TextInput(attrs={'class': 'form-control'}),
+        }
+
+    def clean(self):
+        if self.is_valid():
+
+            email = self.cleaned_data.get('email')
+            password = self.cleaned_data.get('password')
+            if not authenticate(email=email, password=password):
+                raise forms.ValidationError('Invalid Login')
+
+
+class AccountUpdateform(forms.ModelForm):
+    """
+      Updating User Info
+    """
+
+    class Meta:
+        model = get_user_model()
+        fields = ('email', 'username')
+        widgets = {
+            'email': forms.TextInput(attrs={'class': 'form-control'}),
+            'password': forms.TextInput(attrs={'class': 'form-control'}),
+        }
+
+    def clean_email(self):
+        if self.is_valid():
+            email = self.cleaned_data['email']
+            Account = get_user_model()
+            try:
+                account = Account.objects.exclude(pk=self.instance.pk).get(email=email)
+            except Account.DoesNotExist:
+                return email
+            raise forms.ValidationError("Email '%s' already in use." % email)
+
+    def clean_username(self):
+        if self.is_valid():
+            username = self.cleaned_data['username']
+            Account = get_user_model()
+            try:
+                account = Account.objects.exclude(pk=self.instance.pk).get(username=username)
+            except Account.DoesNotExist:
+                return username
+            raise forms.ValidationError("Username '%s' already in use." % username)

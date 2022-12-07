@@ -12,7 +12,7 @@ from django.utils import timezone
 from rave_python import Rave
 from rave_python.rave_exceptions import TransactionVerificationError
 
-from .forms import CheckoutForm
+from .forms import CheckoutForm, RegistrationForm
 from .models import (
     Item,
     Order,
@@ -318,6 +318,6 @@ def verify_payment(request):
 
 
 class SignUpView(generic.CreateView):
-    form_class = UserCreationForm
+    form_class = RegistrationForm
     success_url = reverse_lazy("login")
     template_name = "registration/signup.html"
