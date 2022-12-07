@@ -68,8 +68,7 @@
 
       <!-- Brand -->
       <a class="navbar-brand waves-effect" href="/">
-          <img src="{% static 'assets/img/favicon.png' %}" alt="">
-        <strong class="orange-text">FARMFRESH</strong>
+          <h4 class="align-bottom"><img src="{% static 'assets/img/favicon.png' %}" alt="" class="align-bottom">FARM<span class="orange-text">FRESH</span></h4>
       </a>
 
       <!-- Collapse -->
@@ -107,15 +106,15 @@
                 Hi {{ user.username }}!
                 </a>
             </li>
-             </li class="nav-item">
-                <a class="nav-link waves-effect" href="{% url 'logout' %}"> logout</a>
+             <li class="nav-item">
+                <a class="nav-link waves-effect text-muted" href="{% url 'logout' %}"> logout</a>
             </li>
             {% else %}
-             </li class="nav-item">
-                <a class="nav-link waves-effect" href="{% url 'login' %}"> login</a>
+             <li class="nav-item">
+                <a class="nav-link waves-effect text-muted" href="{% url 'login' %}"> login</a>
             </li>
-            </li class="nav-item">
-                <a class="nav-link waves-effect" href="/signup"> sign up</a>
+            <li class="nav-item">
+                <a class="nav-link waves-effect text-muted" href="/signup"> sign up</a>
             </li>
             {% endif %}
         </ul>
