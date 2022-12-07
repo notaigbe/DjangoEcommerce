@@ -80,10 +80,6 @@ class AccountUpdateform(forms.ModelForm):
     class Meta:
         model = get_user_model()
         fields = ('email', 'username')
-        widgets = {
-            'email': forms.TextInput(attrs={'class': 'form-control'}),
-            'password': forms.TextInput(attrs={'class': 'form-control'}),
-        }
 
     def clean_email(self):
         if self.is_valid():

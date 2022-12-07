@@ -12,7 +12,7 @@ from django.utils import timezone
 from rave_python import Rave
 from rave_python.rave_exceptions import TransactionVerificationError
 
-from .forms import CheckoutForm, RegistrationForm
+from .forms import CheckoutForm, RegistrationForm, AccountUpdateform
 from .models import (
     Item,
     Order,
@@ -321,3 +321,29 @@ class SignUpView(generic.CreateView):
     form_class = RegistrationForm
     success_url = reverse_lazy("login")
     template_name = "registration/signup.html"
+
+
+def account_view(request):
+    """
+      Renders userprofile page "
+    """
+    if not request.user.is_authenticated:
+        return redirect("login")
+    context = {}
+    if request.POST:
+        form = AccountUpdateform(request.POST, instance=request.user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "profile Updated")
+        else:
+            messages.error(request, "Please Correct Below Errors")
+    else:
+        form = AccountUpdateform(
+            initial={
+                'email': request.user.email,
+                'username': request.user.username,
+            }
+        )
+    context['account_form'] = form
+
+    return render(request, "registration/userprofile.html", context)

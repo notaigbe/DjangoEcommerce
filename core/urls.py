@@ -9,7 +9,7 @@ from .views import (
     HomeView,
     OrderSummaryView,
     CheckoutView,
-    PaymentView, SignUpView
+    PaymentView, SignUpView, account_view
 )
 
 app_name = 'core'
@@ -26,6 +26,7 @@ urlpatterns = [
     path('reduce-quantity-item/<pk>/', reduce_quantity_item, name='reduce-quantity-item'),
     path('complete_payment/', complete_payment, name='complete_payment'),
     path("signup/", SignUpView.as_view(), name="signup"),
+    path('profile/', account_view, name="account"),
 ]
 
 

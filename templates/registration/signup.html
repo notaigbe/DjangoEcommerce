@@ -5,13 +5,18 @@
 <div class="row">
 
 <div class="col-12 col-lg-6 billing-address-form">
+  {% if registered %}
+        <strong>Thank You for signing up with us.</strong>
+        <a href="'/'" class="btn-link btn">Return to the HomePage</a><br>
+    {% else %}
   <h2>Sign Up</h2>
-  <form method="post">
+  <form method="post" class="container mt-5">
     {% csrf_token %}
     {{ form.as_p }}
     <button type="submit" class="btn btn-primary">Sign Up</button>
+    <p class="p-2 m-1">Already Signed Up? <a href="{% url 'login' %}"><span>Login</span></a></p>
   </form>
-
+{% endif %}
   </div>
 </div>
   </div>
