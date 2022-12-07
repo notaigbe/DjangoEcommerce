@@ -1,9 +1,12 @@
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import render, get_object_or_404, redirect
+from django.urls import reverse_lazy
+from django.views import generic
 from django.views.generic import ListView, DetailView, View
 from django.utils import timezone
 from rave_python import Rave
@@ -312,3 +315,9 @@ def verify_payment(request):
         print(e.err["errMsg"])
         print(e.err["flwRef"])
     return redirect('/')
+
+
+class SignUpView(generic.CreateView):
+    form_class = UserCreationForm
+    success_url = reverse_lazy("login")
+    template_name = "registration/signup.html"
