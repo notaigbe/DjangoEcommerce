@@ -22,7 +22,7 @@ class Item(models.Model):
     category = models.CharField(choices=CATEGORY, max_length=2)
     label = models.CharField(choices=LABEL, max_length=2)
     description = models.TextField()
-    image = models.ImageField(upload_to='troika/farmfresh/products/', default='troika/farmfresh/products/default.jpg')
+    image = models.ImageField(upload_to='troika/accounts/products/', default='troika/accounts/products/default.jpg')
 
     def __str__(self):
         return self.item_name
