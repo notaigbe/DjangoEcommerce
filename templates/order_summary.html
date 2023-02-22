@@ -88,32 +88,5 @@
 {% endblock content %}
 
 {% block extra_script %}
-	<script src="https://checkout.flutterwave.com/v3.js"></script>
-	<script>
-	  function makePayment() {
-	  const rand = Math.random().toString(20).substr(2, 8); // 6de5ccda
-		FlutterwaveCheckout({
-		  public_key: "FLWPUBK_TEST-40d34d2a9d030a481ae3fb1faae3b9ba-X",
-		  tx_ref: "tacommodity-farmfresh-"+rand,
-		  amount: 1000,
-		  currency: "NGN",
-		  payment_options: "card, banktransfer, ussd",
-		  redirect_url: "localhost:8000/verify_payment",
-		  meta: {
-			consumer_id: 1,
-			consumer_mac: "92a3-912ba-1192a",
-		  },
-		  customer: {
-			email: "notaigbe@gmail.com",
-			phone_number: "08056656774",
-			name: "Nathaniel Otaigbe",
-		  },
-		  customizations: {
-			title: "Farmfresh",
-			description: "Payment for purchase of goods",
-			logo: "https://warm-eyrie-56393.herokuapp.com/static/images/lagos_moe.png",
-		  },
-		});
-	  }
-	</script>
+
 {% endblock extra_script %}

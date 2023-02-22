@@ -48,6 +48,8 @@
             <h3 class="lead font-weight-bold">{{ object.item_name }}</h3>
 
             <p>{{ object.description }}</p>
+            {% if object.current_stock > 0 %}
+            <p>In stock: {{ object.current_stock }}</p>
 
             {% comment %} <form class="d-flex justify-content-left">
               <!-- Default input -->
@@ -62,11 +64,31 @@
                 <i class="fas fa-shopping-cart ml-1"></i>
             </a>
 
-            {{ object.get_quantity_in_chart }}
+            {{ object.get_quantity_in_cart }}
             <a href="{{ object.get_remove_from_cart_url }}" class="btn btn-danger btn-md my-0 p" >Remove From cart
                 <i class="fas fa-trash ml-1"></i>
             </a>
-           
+            {% else %}
+            <p>Out of stock</p>
+
+            {% comment %} <form class="d-flex justify-content-left">
+              <!-- Default input -->
+              <input type="number" value="1" aria-label="Search" class="form-control" style="width: 100px">
+              <button class="btn btn-primary btn-md my-0 p" type="submit">Add to cart
+                <i class="fas fa-shopping-cart ml-1"></i>
+              </button>
+
+            </form> {% endcomment %}
+
+            <a href="{{ object.get_add_to_cart_url }}" class="btn disabled btn-primary btn-md my-0 p" >Add to cart
+                <i class="fas fa-shopping-cart ml-1"></i>
+            </a>
+
+            {{ object.get_quantity_in_cart }}
+            <a href="{{ object.get_remove_from_cart_url }}" class="btn disabled btn-danger btn-md my-0 p" >Remove From cart
+                <i class="fas fa-trash ml-1"></i>
+            </a>
+            {% endif %}
 
           </div>
           <!--Content-->

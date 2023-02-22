@@ -1,15 +1,24 @@
+import json
+import os
+
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.serializers import serialize
+from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
+from django.template.loader import render_to_string
 from django.urls import reverse_lazy
 from django.views import generic
 from django.views.generic import ListView, DetailView, View
 from django.utils import timezone
-from rave_python import Rave
+from pypaystack import Transaction
+from rave_python import Rave, rave
 from rave_python.rave_exceptions import TransactionVerificationError
 
 from .forms import CheckoutForm, RegistrationForm, AccountUpdateform
@@ -18,7 +27,7 @@ from .models import (
     Order,
     OrderItem,
     CheckoutAddress,
-    Payment, Deal
+    Payment, Deal, Stock
 )
 
 import stripe
@@ -51,6 +60,20 @@ class OrderSummaryView(LoginRequiredMixin, View):
             return redirect("/")
 
 
+class OrdersView(LoginRequiredMixin, View):
+    def get(self, *args, **kwargs):
+
+        try:
+            orders = Order.objects.order_by('-ordered_date')
+            context = {
+                'orders': orders
+            }
+            return render(self.request, 'orders.html', context)
+        except ObjectDoesNotExist:
+            messages.info(self.request, "You do not have an order")
+            return redirect("/")
+
+
 class CheckoutView(View):
     def get(self, *args, **kwargs):
         form = CheckoutForm()
@@ -70,6 +93,7 @@ class CheckoutView(View):
                 street_address = form.cleaned_data.get('street_address')
                 apartment_address = form.cleaned_data.get('apartment_address')
                 country = form.cleaned_data.get('country')
+                phone = form.cleaned_data.get('phone')
                 zip = form.cleaned_data.get('zip')
                 # TODO: add functionality for these fields
                 # same_billing_address = form.cleaned_data.get('same_billing_address')
@@ -81,6 +105,7 @@ class CheckoutView(View):
                     street_address=street_address,
                     apartment_address=apartment_address,
                     country=country,
+                    phone=phone,
                     zip=zip
                 )
                 checkout_address.save()
@@ -178,17 +203,45 @@ class PaymentView(View):
 
 @login_required
 def complete_payment(request):
-    order = Order.objects.get(user=request.user, ordered=False)
-    token = request.GET.get('transaction_id')
-    amount = int(order.get_total_price() * 100)  # cents
+    token = ''
+    status = False
+    reference = ''
+    amount = 0
+    flw_ref = ''
 
     try:
+        if request.GET.get('reference'):
+            reference = request.GET.get('reference')
+            transaction = Transaction(os.environ.get('PAYSTACK_SECRET_KEY'))
+            response = transaction.verify(reference)
+            print(response[3]['id'])
+            token = response[3]['id']
+            status = response[2]
+            reference = response[3]['reference']
+            amount = response[3]['amount']/100
+
+        else:
+            rave_key = Rave(os.environ.get('RAVE_PUBLIC_KEY'), os.environ.get('RAVE_SECRET_KEY'))
+            tx_ref = request.GET.get('tx_ref')
+            response = rave_key.Card.verify(tx_ref)
+            print(response)
+            token = response["flwRef"]
+            if not response['error']:
+                status = 'Verified'
+            else:
+                status = 'Verification Error'
+            reference = response['txRef']
+            amount = response['amount']
+
+        order = Order.objects.get(user=request.user, ordered=False)
 
         # create payment
         payment = Payment()
         payment.transaction_id = token
+        payment.tx_ref = reference
+        payment.pay_status = status
         payment.user = request.user
-        payment.amount = order.get_total_price()
+        payment.amount = amount
         payment.save()
 
         # assign payment to order
@@ -199,40 +252,51 @@ def complete_payment(request):
         messages.success(request, "Your order was successful")
         return redirect('/')
 
+    except TransactionVerificationError as e:
+        messages.error(request, e.err["errMsg"])
+        return redirect('/')
     except Exception as e:
         # Something else happened, completely unrelated to Stripe
-        messages.error(request, "Not identified error")
+        messages.error(request, str(e))
         return redirect('/')
 
 
 @login_required
 def add_to_cart(request, pk):
     item = get_object_or_404(Item, pk=pk)
-    order_item, created = OrderItem.objects.get_or_create(
-        item=item,
-        user=request.user,
-        ordered=False
-    )
-    order_qs = Order.objects.filter(user=request.user, ordered=False)
+    if item.current_stock > 0:
+        order_item, created = OrderItem.objects.get_or_create(
+            item=item,
+            user=request.user,
+            ordered=False
+        )
+        order_qs = Order.objects.filter(user=request.user, ordered=False)
 
-    if order_qs.exists():
-        order = order_qs[0]
+        if order_qs.exists():
+            order = order_qs[0]
 
-        if order.items.filter(item__pk=item.pk).exists():
-            order_item.quantity += 1
-            order_item.save()
-            messages.info(request, "Added quantity Item")
-            return redirect("core:order-summary")
+            if order.items.filter(item__pk=item.pk).exists():
+                order_item.quantity += 1
+                order_item.save()
+                item.current_stock -= 1
+                item.save()
+                messages.info(request, "Added quantity Item")
+                return redirect("core:order-summary")
+            else:
+                order.items.add(order_item)
+                item.current_stock -= order_item.quantity
+                item.save()
+                messages.info(request, "Item added to your cart")
+                return redirect("core:order-summary")
         else:
+            ordered_date = timezone.now()
+            order = Order.objects.create(user=request.user, ordered_date=ordered_date)
             order.items.add(order_item)
             messages.info(request, "Item added to your cart")
             return redirect("core:order-summary")
     else:
-        ordered_date = timezone.now()
-        order = Order.objects.create(user=request.user, ordered_date=ordered_date)
-        order.items.add(order_item)
-        messages.info(request, "Item added to your cart")
-        return redirect("core:order-summary")
+        messages.info(request, "Item out of stock")
+        return redirect("core:product", pk=pk)
 
 
 @login_required
@@ -251,6 +315,8 @@ def remove_from_cart(request, pk):
                 ordered=False
             )[0]
             order_item.delete()
+            item.current_stock += order_item.quantity
+            item.save()
             messages.info(request, "Item \"" + order_item.item.item_name + "\" remove from your cart")
             return redirect("core:order-summary")
         else:
@@ -280,8 +346,12 @@ def reduce_quantity_item(request, pk):
             if order_item.quantity > 1:
                 order_item.quantity -= 1
                 order_item.save()
+                item.current_stock += 1
+                item.save()
             else:
                 order_item.delete()
+                item.current_stock += order_item.quantity
+                item.save()
             messages.info(request, "Item quantity was updated")
             return redirect("core:order-summary")
         else:
@@ -304,6 +374,7 @@ def verify_payment(request):
     status = request.GET.get('status')
     transaction_id = request.GET.get('transaction_id')
     tx_ref = request.GET.get('tx_ref')
+
     try:
         rave = Rave('RAVE_PUBLIC_KEY', 'RAVE_SECRET_KEY')
         res = rave.Card.verify(tx_ref)
@@ -347,3 +418,55 @@ def account_view(request):
     context['account_form'] = form
 
     return render(request, "registration/userprofile.html", context)
+
+def latest_orders(request):
+    items = []
+    orders = Order.objects.order_by('-ordered_date')[:10] # get the latest 10 orders
+    for order in orders:
+        for item in order.items.all():
+            items.append(str(item))
+
+
+    data = [{'id': order.id,
+            'user':{
+                'first_name': order.user.first_name,
+                'last_name': order.user.last_name,
+            },
+            'items': [items.append(str(item) for item in order.items.all()) ],
+            'start_date': order.start_date.strftime('%Y-%m-%d %H:%M:%S'),
+            'ordered_date': order.ordered_date.strftime('%Y-%m-%d %H:%M:%S') if order.ordered_date else '',
+            'ordered': order.ordered,
+            'checkout_address': {
+                'street': order.checkout_address.street_address,
+                'apartment': order.checkout_address.apartment_address,
+                'country': str(order.checkout_address.country),
+                'zip': order.checkout_address.zip,
+                'phone': order.checkout_address.phone,
+            } if order.checkout_address else '',
+            'payment': {
+                'transaction_id': order.payment.transaction_id,
+                'tx_ref': order.payment.tx_ref,
+                'pay_status': order.payment.pay_status,
+                'amount': order.payment.amount,
+            } if order.payment else '',
+             'delivery_status': order.delivery_status,
+        } for order in orders]
+    return JsonResponse(data, safe=False)
+
+def update_status(request):
+    if request.method == "POST":
+        _id = request.POST.get("id")
+        status = request.POST.get("status")
+        print(status)
+        # Update the item
+        item = Order.objects.get(pk=_id)
+        item.delivery_status = status
+        item.save()
+
+        # Render the updated table row
+        items = Order.objects.all()
+        context = {"items": items}
+        html = render_to_string("orders.html", context)
+        return JsonResponse({"html": html})
+    else:
+        return JsonResponse({})

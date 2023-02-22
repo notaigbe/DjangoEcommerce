@@ -1,10 +1,10 @@
 from django.contrib import admin
 from .models import (
-    Item, 
-    OrderItem, 
+    Item,
+    OrderItem,
     Order,
     CheckoutAddress,
-    Payment
+    Payment, Stock
 )
 
 admin.site.register(Item)
@@ -12,3 +12,4 @@ admin.site.register(OrderItem)
 admin.site.register(Order)
 admin.site.register(CheckoutAddress)
 admin.site.register(Payment)
+admin.site.register(Stock)

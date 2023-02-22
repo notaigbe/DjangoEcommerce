@@ -5,11 +5,13 @@ from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, get_user_model
 from django.contrib.auth.forms import UserCreationForm
+from phonenumber_field.formfields import PhoneNumberField
+from phonenumber_field.widgets import PhoneNumberPrefixWidget, RegionalPhoneNumberWidget
 
 PAYMENT = (
     ('S', 'Stripe'),
     ('P', 'PayPal'),
-    ('F', 'Flutterwave')
+    ('F', 'Nigeria')
 )
 
 
@@ -24,8 +26,13 @@ class CheckoutForm(forms.Form):
         'placeholder': 'Apartment or suite'
     }))
 
-    country = CountryField(blank_label='(select country)').formfield(widget=CountrySelectWidget(attrs={
+    country = CountryField(blank_label='(select country)', default='NG').formfield(widget=CountrySelectWidget(attrs={
         'class': 'custom-select d-block w-100'
+    }))
+
+    phone = forms.CharField(widget=forms.TextInput(attrs={
+        'class': 'form-control',
+        'placeholder': 'Phone Number'
     }))
 
     zip = forms.CharField(widget=forms.TextInput(attrs={
@@ -35,7 +42,7 @@ class CheckoutForm(forms.Form):
     same_billing_address = forms.BooleanField(required=False)
     save_info = forms.BooleanField(required=False)
     payment_option = forms.ChoiceField(
-        widget=forms.RadioSelect, choices=PAYMENT)
+        widget=forms.RadioSelect, choices=PAYMENT, initial='F')
 
 
 class RegistrationForm(UserCreationForm):

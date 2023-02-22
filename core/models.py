@@ -1,7 +1,15 @@
+import json
+
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
 from django.conf import settings
 from django.db import models
+from django.db.models import Q, F
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from django.shortcuts import reverse
 from django_countries.fields import CountryField
+from phonenumber_field.modelfields import PhoneNumberField
 
 CATEGORY = (
     ('S', 'Fish'),
@@ -23,7 +31,10 @@ class Item(models.Model):
     label = models.CharField(choices=LABEL, max_length=2)
     description = models.TextField()
     image = models.ImageField(upload_to='troika/accounts/products/', default='troika/accounts/products/default.jpg')
-
+    initial_stock = models.IntegerField(default=0)
+    topup_stock = models.IntegerField(default=0)
+    total_stock = models.IntegerField(default=100)
+    current_stock = models.IntegerField(default=0)
     def __str__(self):
         return self.item_name
 
@@ -42,6 +53,30 @@ class Item(models.Model):
         return reverse("core:remove-from-cart", kwargs={
             "pk": self.pk
         })
+
+    @property
+    def get_total_stock(self):
+        initial = self.initial_stock
+        topup = self.topup_stock
+        total = initial + topup
+        return total
+
+    def save(self, *args, **kwargs):
+        self.total_stock = self.get_total_stock
+        super().save(*args, **kwargs)
+
+    class Meta:
+        constraints = [
+            models.CheckConstraint(check=Q(current_stock__lte=F('total_stock')), name='current_stock_less_than_total_stock')
+        ]
+
+class Stock(models.Model):
+    name = models.ForeignKey(Item, on_delete=models.CASCADE)
+    initial_stock = models.IntegerField()
+    current_stock = models.IntegerField()
+
+    def __str__(self):
+        return self.name.item_name
 
 
 class OrderItem(models.Model):
@@ -70,6 +105,7 @@ class OrderItem(models.Model):
 
 
 class Order(models.Model):
+    STATUS = (('1', 'New Order'), ('2', 'Processing'), ('3', 'Shipped'), ('4', 'Delivered'))
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     items = models.ManyToManyField(OrderItem)
     start_date = models.DateTimeField(auto_now_add=True)
@@ -79,6 +115,7 @@ class Order(models.Model):
         'CheckoutAddress', on_delete=models.SET_NULL, blank=True, null=True)
     payment = models.ForeignKey(
         'Payment', on_delete=models.SET_NULL, blank=True, null=True)
+    delivery_status = models.CharField(choices=STATUS, max_length=10, default=1)
 
     def __str__(self):
         return self.user.username
@@ -89,6 +126,16 @@ class Order(models.Model):
             total += order_item.get_final_price()
         return total
 
+# @receiver(post_save, sender=Order)
+# def notify_clients(sender, instance, **kwargs):
+#     channel_layer = get_channel_layer()
+#     async_to_sync(channel_layer.group_send)(
+#         'orders',
+#         {
+#             'type': 'order_created',
+#             'message': json.dumps({'latest_order': instance.id}),
+#         }
+#     )
 
 class CheckoutAddress(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
@@ -96,13 +143,16 @@ class CheckoutAddress(models.Model):
     apartment_address = models.CharField(max_length=100)
     country = CountryField(multiple=False)
     zip = models.CharField(max_length=100)
+    phone = models.CharField(max_length=11)
 
     def __str__(self):
         return self.user.username
 
 
 class Payment(models.Model):
-    transaction_id = models.CharField(max_length=50)
+    transaction_id = models.CharField(max_length=50, unique=True)
+    tx_ref = models.CharField(max_length=50, unique=True)
+    pay_status = models.CharField(max_length=50, default='Processing')
     user = models.ForeignKey(settings.AUTH_USER_MODEL,
                              on_delete=models.SET_NULL, blank=True, null=True)
     amount = models.FloatField()
@@ -111,6 +161,14 @@ class Payment(models.Model):
     def __str__(self):
         return self.user.username
 
+    def save(self, *args, **kwargs):
+        try:
+            stock = Stock.objects.get(id=1)
+            stock.current_stock -= 20
+            stock.save()
+        except Exception as e:
+            print(e)
+        super().save(*args, **kwargs)
 
 class Deal(models.Model):
     PACKAGE = (('0', 'Kg'), ('1', 'bag'), ('2', 'bottle'), ('3', 'tonne'), ('4', 'bunch'))

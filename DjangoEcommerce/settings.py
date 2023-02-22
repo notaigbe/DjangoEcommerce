@@ -31,7 +31,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1', 'urchin-app-pwz4d.ondigitalocean.app', 'farmfresh.tacommodity.com']
+ALLOWED_HOSTS = ['127.0.0.1', 'urchin-app-pwz4d.ondigitalocean.app', 'farmfresh.tacommodity.com', 'localhost']
 
 
 # Application definition
@@ -43,6 +43,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'channels',
+    'websocket_app',
 
     'storages',
     'django.contrib.sites',
@@ -51,6 +53,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     'django_countries',
     'crispy_forms',
+    'phonenumber_field',
     
     'core'
 ]
@@ -129,8 +132,8 @@ USE_TZ = True
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
 EMAIL_USE_TLS = True
-EMAIL_HOST = 'smtp.mailgun.org'
-EMAIL_HOST_USER = 'postmaster@tacommodity.com'
+EMAIL_HOST = 'smtp.ipower.com'
+EMAIL_HOST_USER = 'notaigbe@tacommodity.com'
 EMAIL_HOST_PORT = 587
 EMAIL_HOST_PASSWORD = os.environ.get('MAILGUN_HOST_PASSWORD')
 
@@ -165,7 +168,6 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 # MEDIA_URL = os.environ.get('AWS_URL')
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-
 # Auth
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
@@ -176,7 +178,13 @@ SITE_ID = 1
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
-
+SECURE_SSL_REDIRECT = True
 #stripe payment
 STRIPE_KEY = ''
 
+ASGI_APPLICATION = 'DjangoEcommerce.asgi.application'
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+    },
+}

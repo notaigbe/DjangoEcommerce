@@ -110,7 +110,8 @@ button:hover {
 
         <div class="col-md-12 mb-4">
           <div class="card">
-            <button class="btn btn-warning" onclick="makePayment()">Pay Now</button>
+            <button class="btn btn-warning" onclick="makePayment()">Pay with Flutterwave</button>
+            <button type="submit" onclick="payWithPaystack()" class="btn btn-primary"> Pay with Paystack</button>
             <script src="https://js.stripe.com/v3/"></script>
 
             <!--div class="new-card-form">
@@ -190,8 +191,8 @@ button:hover {
 	  function makePayment() {
 	  const rand = Math.random().toString(20).substr(2, 8); // 6de5ccda
 		FlutterwaveCheckout({
-		  public_key: "FLWPUBK_TEST-40d34d2a9d030a481ae3fb1faae3b9ba-X",
-		  tx_ref: "tacommodity-farmfresh-"+rand,
+		  public_key: "FLWPUBK_TEST-202a17691b1e05fde71b95933e525048-X",
+		  tx_ref: "TA-flw-" + rand + "-ff-" + {{ order.id }},
 		  amount: {{ order.get_total_price }},
 		  currency: "NGN",
 		  payment_options: "card, banktransfer, ussd",
@@ -202,18 +203,53 @@ button:hover {
 		  },
 		  customer: {
 			email: "{{ request.user.email}}",
-			phone_number: "{{ request.user.phone }}",
-			name: "{{ request.user.firstname }} {{ request.user.lastname }}",
+			phone: "{{ request.user.phone }}",
+			fullName: "{{ request.user.first_name }} {{ request.user.last_name }}",
 		  },
 		  customizations: {
 			title: "Farmfresh Checkout",
 			description: "Order for {{ order_item.quantity }} items",
-			logo: "",
+			logo: "https://app.tacommodity.com/static/assets/img/ta_logo.png",
 		  },
 		});
 	  }
 	</script>
+<script src="https://js.paystack.co/v1/inline.js"></script>
+<script>
+  var paymentForm = document.getElementById('paymentForm');
+  //paymentForm.addEventListener('submit', payWithPaystack, false);
+  function payWithPaystack() {
+    var handler = PaystackPop.setup({
+      key: 'pk_test_a619c9735166e7f36f0f9d496025dcb552585a1c', // Replace with your public key
+      email: "{{ request.user.email }}",
+      amount: {{ order.get_total_price }} * 100, // the amount value is multiplied by 100 to convert to the lowest currency unit
+      currency: 'NGN', // Use GHS for Ghana Cedis or USD for US Dollars
+      ref: 'TA-psk-'+ Math.floor((Math.random() * 1000000000) + 1) + '-ff-' + {{ order.id }}, // Replace with a reference you generated
+      phone: "{{ request.user.phone }}",
+	  first_name: "{{ request.user.first_name }}",
+	  last_name: "{{ request.user.last_name }}",
 
+      callback: function(response) {
+        //this happens after the payment is completed successfully
+        //var reference = response.reference;
+        //alert('Payment complete! Reference: ' + reference);
+        // Make an AJAX call to your server with the reference to verify the transaction
+        $.ajax({
+        url: 'http://localhost:8000/complete_payment?reference='+ response.reference,
+        method: 'get',
+        success: function (response) {
+          // the transaction status is in response.data.status
+          window.location.href = "http://localhost:8000";
+        }
+      });
+      },
+      onClose: function() {
+        alert('Transaction was not completed, window closed.');
+      },
+    });
+    handler.openIframe();
+  }
+</script>
 <script nonce="">  // Create a Stripe client.
   var stripe = Stripe('');
 
