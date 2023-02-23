@@ -199,9 +199,16 @@
               <div class="view overlay">
                 <img src="{{ item.image.url }}" class="card-img-top"
                   alt="">
+                  {% if not request.user.is_staff %}
                 <a href="{{ item.get_absolute_url }}">
                   <div class="mask rgba-white-slight"></div>
                 </a>
+                  {% else %}
+                  <a href="{% url 'core:update_product' item.id %}">
+                  <div class="mask rgba-white-slight"></div>
+                      <p>In stock: {{ item.current_stock }}</p>
+                </a>
+                  {% endif %}
               </div>
               <!--Card image-->
               <!--Card content-->

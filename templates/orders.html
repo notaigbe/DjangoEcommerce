@@ -30,9 +30,7 @@
             <th scope="col">Transaction ID</th>
             {% endif %}
             <th scope="col">Payment Status</th>
-            {% if request.user.is_staff %}
             <th scope="col">Delivery Status</th>
-            {% endif %}
         </tr>
         </thead>
         <tbody>
@@ -94,6 +92,8 @@
                 </select>
                 {% endif %}
             </td>
+            {% else %}
+            <td>{{ order.delivery_status }}</td>
             {% endif %}
         </tr>
 

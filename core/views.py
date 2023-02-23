@@ -21,7 +21,7 @@ from pypaystack import Transaction
 from rave_python import Rave, rave
 from rave_python.rave_exceptions import TransactionVerificationError
 
-from .forms import CheckoutForm, RegistrationForm, AccountUpdateform
+from .forms import CheckoutForm, RegistrationForm, AccountUpdateform, ProductUpdateForm
 from .models import (
     Item,
     Order,
@@ -492,3 +492,46 @@ def update_status(request):
         return JsonResponse({"html": html})
     else:
         return JsonResponse({})
+
+
+def add_product(request):
+    if request.method == 'POST':
+        form = ProductUpdateForm(request.POST)
+        print(form)
+        if form.is_valid():
+            form.save()
+            file = request.FILES['image']
+
+            messages.success(request, 'Product Added')
+            return redirect('core:add_product')
+        else:
+            messages.error(request, form.errors.as_data)
+            form = ProductUpdateForm(request.POST)
+    else:
+        form = ProductUpdateForm()
+    context = {
+        'product_form': form,
+    }
+    return render(request, 'update_product.html', context)
+
+
+def update_product(request, product_id):
+    product = Item.objects.get(pk=product_id)
+    if request.method == 'POST':
+        form = ProductUpdateForm(request.POST, instance=product)
+        print(form)
+        if form.is_valid():
+            form.save()
+
+            messages.success(request, 'Product Updated')
+            return redirect('core:update_product', product_id)
+        else:
+            messages.error(request, form.errors.as_data)
+            form = ProductUpdateForm(request.POST)
+    else:
+        form = ProductUpdateForm(instance=product)
+    context = {
+        'product_form': form,
+        'product': product
+    }
+    return render(request, 'update_product.html', context)

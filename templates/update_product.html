@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container">
+<div class="row">
+
+<div class="col-12 col-lg-6 billing-address-form">
+<h2>Update Product</h2>
+
+<form method="post" class="container mt-5" enctype="multipart/form-data">
+    {% csrf_token %}
+    {% for field in product_form %}
+    <p>
+        {{ field.label_tag }}
+        {{ field }}
+    </p>
+    {% if field.help_text %}
+        <small style="color:grey;">{{ field.help_text }}</small>
+        {% endif %}
+     {% endfor %}
+    {% for field in product_form %}
+        {% for error in field.errors %}
+            <p style="color:red">{{error}}</p>
+        {% endfor %}
+    {% endfor %}
+
+    {% if product_form.non_field_errors %}
+        <div style="color: red">
+            <p>{{ product_form.non_field_errors }}</p>
+        </div>
+        {% endif %}
+
+
+    <button type="submit" class="btn btn-primary" >Save Changes</button>
+    <a href="/" class="btn btn-success"> HOME</a>
+
+</form>
+</div>
+    <div class="col-12 col-lg-6 billing-address-form mt-5">
+    <hr>
+     <div class="image d-flex justify-content-center">
+        <img src="{{ product.image.url }}" alt="{{ product.image.url }}" class="img-thumbnail" id="product-img">
+    </div>
+    <hr>
+  </div>
+</div>
+  </div>
+{% endblock %}

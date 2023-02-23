@@ -1,4 +1,6 @@
 from django import forms
+from django.db.models import ImageField
+from django.forms import TextInput, NumberInput, Textarea, Select, FileInput
 from django_countries.fields import CountryField
 from django_countries.widgets import CountrySelectWidget
 from django import forms
@@ -7,6 +9,8 @@ from django.contrib.auth import authenticate, get_user_model
 from django.contrib.auth.forms import UserCreationForm
 from phonenumber_field.formfields import PhoneNumberField
 from phonenumber_field.widgets import PhoneNumberPrefixWidget, RegionalPhoneNumberWidget
+
+from core.models import Item
 
 PAYMENT = (
     ('S', 'Stripe'),
@@ -107,3 +111,21 @@ class AccountUpdateform(forms.ModelForm):
             except Account.DoesNotExist:
                 return username
             raise forms.ValidationError("Username '%s' already in use." % username)
+
+class ProductUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Item
+        fields = ('item_name', 'price','discount_price','category','label','description','image','initial_stock','topup_stock','total_stock','current_stock')
+        widgets = {
+            'item_name': TextInput(attrs={'class': 'form-control'}),
+            'price': TextInput(attrs={'class': 'form-control'}),
+            'discount_price': NumberInput(attrs={'class': 'form-control'}),
+            'category': Select(attrs={'class': "form-control w-100"}),
+            'label': Select(attrs={'class': "form-control w-100"}),
+            'description': Textarea(attrs={'class': 'form-control'}),
+            'image': FileInput(),
+            'initial_stock': NumberInput(attrs={'class': 'form-control'}),
+            'topup_stock': NumberInput(attrs={'class': 'form-control'}),
+            'total_stock': NumberInput(attrs={'class': 'form-control'}),
+            'current_stock': NumberInput(attrs={'class': 'form-control'}),
+        }

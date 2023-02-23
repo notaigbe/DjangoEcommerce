@@ -9,7 +9,7 @@ from .views import (
     HomeView,
     OrderSummaryView,
     CheckoutView,
-    PaymentView, SignUpView, account_view, OrdersView, latest_orders, update_status
+    PaymentView, SignUpView, account_view, OrdersView, latest_orders, update_status, add_product, update_product
 )
 
 app_name = 'core'
@@ -30,6 +30,8 @@ urlpatterns = [
     path('profile/', account_view, name="account"),
     path('latest_orders/', latest_orders, name='latest_orders'),
     path('update_status/', update_status, name='update_status'),
+    path('add_product/', add_product, name='add_product'),
+    path('update_product/<product_id>/', update_product, name='update_product'),
 
 ]
 

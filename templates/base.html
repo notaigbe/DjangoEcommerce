@@ -99,6 +99,7 @@
                 Hi {{ user.username }}!
                 </a>
             </li>
+            {% if request.user.is_staff %}
             <li class="nav-item">
                 <a href="{% url 'core:order-summary' %}" class="nav-link waves-effect">
                 {% if request.user|cart_item_count != 0 %}
@@ -108,6 +109,7 @@
                 <span class="clearfix d-none d-sm-inline-block"> Cart </span>
                 </a>
             </li>
+            {% endif %}
             <li class="nav-item">
                 <a href="{% url 'core:orders' %}" class="nav-link waves-effect">
                 <i class="fas fa-shopping-bag"></i>
