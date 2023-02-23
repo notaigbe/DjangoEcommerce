@@ -235,16 +235,17 @@ button:hover {
         //alert('Payment complete! Reference: ' + reference);
         // Make an AJAX call to your server with the reference to verify the transaction
         $.ajax({
-        url: 'http://localhost:8000/complete_payment?reference='+ response.reference,
+        url: '/complete_payment?reference='+ response.reference,
         method: 'get',
         success: function (response) {
           // the transaction status is in response.data.status
-          window.location.href = "http://localhost:8000";
+          window.FlashMessage.success("Your order was successful");
+          window.location.href = "/";
         }
       });
       },
       onClose: function() {
-        alert('Transaction was not completed, window closed.');
+        window.FlashMessage.error('Transaction was not completed, window closed.');
       },
     });
     handler.openIframe();
