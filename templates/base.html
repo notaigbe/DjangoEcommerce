@@ -116,6 +116,14 @@
                 <span class="clearfix d-none d-sm-inline-block"> Orders </span>
                 </a>
             </li>
+            {% if request.user.is_staff %}
+            <li class="nav-item">
+                <a href="{% url 'core:add_product' %}" class="nav-link waves-effect">
+                <i class="fas fa-store"></i>
+                <span class="clearfix d-none d-sm-inline-block"> Add Product </span>
+                </a>
+            </li>
+            {% endif %}
              <li class="nav-item">
                  <a class="nav-link waves-effect text-muted" href="{% url 'logout' %}">
                  <i class="fas fa-door-open"></i>
