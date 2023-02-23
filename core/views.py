@@ -253,7 +253,7 @@ def complete_payment(request):
         return redirect('/')
 
     except TransactionVerificationError as e:
-        messages.error(request, e.err["errMsg"])
+        messages.error(request, str(e.err["errMsg"]))
         return redirect('/')
     except Exception as e:
         # Something else happened, completely unrelated to Stripe
