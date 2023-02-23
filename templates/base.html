@@ -99,7 +99,7 @@
                 Hi {{ user.username }}!
                 </a>
             </li>
-            {% if request.user.is_staff %}
+            {% if not request.user.is_staff %}
             <li class="nav-item">
                 <a href="{% url 'core:order-summary' %}" class="nav-link waves-effect">
                 {% if request.user|cart_item_count != 0 %}
@@ -117,10 +117,16 @@
                 </a>
             </li>
              <li class="nav-item">
-                <a class="nav-link waves-effect text-muted" href="{% url 'logout' %}"> logout</a>
+                 <a class="nav-link waves-effect text-muted" href="{% url 'logout' %}">
+                 <i class="fas fa-door-open"></i>
+                     <span class="clearfix d-none d-sm-inline-block">logout</span>
+                 </a>
             </li>
             <li class="nav-item">
-                 <a class="nav-link waves-effect text-muted" href="{% url 'password_reset' %}">Reset Password</a>
+                <a class="nav-link waves-effect text-muted" href="{% url 'password_reset' %}">
+                <i class="fas fa-key"></i>
+                    <span class="clearfix d-none d-sm-inline-block">Reset Password</span>
+                </a>
             </li>
             {% else %}
              <li class="nav-item">
