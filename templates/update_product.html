@@ -6,8 +6,11 @@
 <div class="row">
 
 <div class="col-12 col-lg-6 billing-address-form">
-<h2>Update Product</h2>
-
+    {% if product %}
+    <h2>Update Product</h2>
+    {% else %}
+    <h2>Add Product</h2>
+    {% endif %}
 <form method="post" class="container mt-5" enctype="multipart/form-data">
     {% csrf_token %}
     {% for field in product_form %}
