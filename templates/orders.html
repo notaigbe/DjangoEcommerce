@@ -6,7 +6,11 @@
     <div class= "container">
         <div class="table-responsive text-nowrap">
     <h3>
+        {% if request.user.is_staff %}
         <strong>Orders</strong>
+        {% else %}
+        <strong>My Orders</strong>
+        {% endif %}
     </h3>
 
     <div class="table-responsive-sm">
@@ -14,22 +18,30 @@
         <thead>
         <tr>
             <th scope="col">#</th>
+            {% if request.user.is_staff %}
             <th scope="col">Buyer</th>
+            {% endif %}
             <th scope="col">Address</th>
             <th scope="col">Contact</th>
             <th scope="col">Order Date</th>
             <th scope="col">Qty</th>
             <th scope="col">Amount</th>
+            {% if request.user.is_staff %}
             <th scope="col">Transaction ID</th>
+            {% endif %}
             <th scope="col">Payment Status</th>
+            {% if request.user.is_staff %}
             <th scope="col">Delivery Status</th>
+            {% endif %}
         </tr>
         </thead>
         <tbody>
         {% for order in orders %}
         <tr data-id="{{ order.id }}">
             <th scope="row">{{ forloop.counter }}</th>
+            {% if request.user.is_staff %}
             <td>{{ order.user.first_name }} {{ order.user.last_name }}</td>
+            {% endif %}
             <td>{{ order.checkout_address.street_address }}</td>
             <td>{{ order.checkout_address.phone }}</td>
             <td>{{ order.ordered_date }}</td>
@@ -46,8 +58,11 @@
                 N{{ order.payment.amount }}
             {% endif %}
             </td>
+            {% if request.user.is_staff %}
             <td>{{ order.payment.tx_ref }}</td>
+            {% endif %}
             <td>{{ order.payment.pay_status }}</td>
+            {% if request.user.is_staff %}
             <td class="w-100">
                 {% if order.delivery_status == '1' %}
                 <select name="status" id="status" class="form-control required" data-id="{{ order.id }}" style="width:120px">
@@ -79,6 +94,7 @@
                 </select>
                 {% endif %}
             </td>
+            {% endif %}
         </tr>
 
         {% empty %}
@@ -122,6 +138,7 @@
 <!--    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>-->
     <script>
     $(document).ready(function() {
+        if ({{ request.user.is_staff }} == True){
       setInterval(function() {
         $.get('/latest_orders/', function(data) {
           // update the table with the latest orders
@@ -141,6 +158,7 @@
           });
         });
       }, 50000); // fetch data every 50 seconds
+      }
     });
     </script>
     <script>

@@ -62,9 +62,32 @@ class OrderSummaryView(LoginRequiredMixin, View):
 
 class OrdersView(LoginRequiredMixin, View):
     def get(self, *args, **kwargs):
+        if self.request.user.is_staff:
+            try:
+                orders = Order.objects.order_by('-ordered_date')
+                context = {
+                    'orders': orders
+                }
+                return render(self.request, 'orders.html', context)
+            except ObjectDoesNotExist:
+                messages.info(self.request, "You do not have an order")
+                return redirect("/")
+        else:
+            try:
+                orders = Order.objects.filter(user=self.request.user).order_by('-ordered_date')
+                context = {
+                    'orders': orders
+                }
+                return render(self.request, 'orders.html', context)
+            except ObjectDoesNotExist:
+                messages.info(self.request, "You do not have an order")
+                return redirect("/")
+
+class CustomerOrdersView(LoginRequiredMixin, View):
+    def get(self, *args, **kwargs):
 
         try:
-            orders = Order.objects.order_by('-ordered_date')
+            orders = Order.objects.filter(user_username=self.request.user).order_by('-ordered_date')
             context = {
                 'orders': orders
             }
@@ -72,7 +95,6 @@ class OrdersView(LoginRequiredMixin, View):
         except ObjectDoesNotExist:
             messages.info(self.request, "You do not have an order")
             return redirect("/")
-
 
 class CheckoutView(View):
     def get(self, *args, **kwargs):
