@@ -93,7 +93,7 @@
                 {% endif %}
             </td>
             {% else %}
-            <td>{{ order.delivery_status }}</td>
+            <td>{{ order.get_delivery_status_display }}</td>
             {% endif %}
         </tr>
 
@@ -138,26 +138,26 @@
 <!--    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>-->
     <script>
     $(document).ready(function() {
-        if ({{ request.user.is_staff }} == True){
-      setInterval(function() {
-        $.get('/latest_orders/', function(data) {
-          // update the table with the latest orders
-          var tableBody = $('#orders-table tbody');
-          tableBody.empty();
-          data.forEach(function(order) {
+        if ("{{ request.user.is_staff }}" == "True"){
+          setInterval(function() {
+            $.get('/latest_orders/', function(data) {
+              // update the table with the latest orders
+              var tableBody = $('#orders-table tbody');
+              tableBody.empty();
+              data.forEach(function(order) {
 
-          if (order.delivery_status == 1){
-            tableBody.append('<tr><td>' + order.id + '</td><td>' + order.user.first_name + ' ' + order.user.last_name + '</td><td>' + order.checkout_address.street + '</td><td>' + order.checkout_address.phone + '</td><td>' + order.ordered_date + '</td><td>' + order.items + '</td><td>' + order.payment.amount + '</td><td>' + order.payment.tx_ref + '</td><td>' + order.payment.pay_status + '</td><td>' + '<select name="status" id="status" class="form-control required" data-id=' + order.id + ' style="width:120px"><option value="1" selected>New Order</option><option value="2">Processing</option><option value="3">Shipped</option><option value="4">Delivered</option></select>' + '</td></tr>');
-            } else if (order.delivery_status == 2){
-            tableBody.append('<tr><td>' + order.id + '</td><td>' + order.user.first_name + ' ' + order.user.last_name + '</td><td>' + order.checkout_address.street + '</td><td>' + order.checkout_address.phone + '</td><td>' + order.ordered_date + '</td><td>' + order.items + '</td><td>' + order.payment.amount + '</td><td>' + order.payment.tx_ref + '</td><td>' + order.payment.pay_status + '</td><td>' + '<select name="status" id="status" class="form-control required" data-id=' + order.id + ' style="width:120px"><option value="1">New Order</option><option value="2" selected>Processing</option><option value="3">Shipped</option><option value="4">Delivered</option></select>' + '</td></tr>');
-            } else if (order.delivery_status == 3){
-            tableBody.append('<tr><td>' + order.id + '</td><td>' + order.user.first_name + ' ' + order.user.last_name + '</td><td>' + order.checkout_address.street + '</td><td>' + order.checkout_address.phone + '</td><td>' + order.ordered_date + '</td><td>' + order.items + '</td><td>' + order.payment.amount + '</td><td>' + order.payment.tx_ref + '</td><td>' + order.payment.pay_status + '</td><td>' + '<select name="status" id="status" class="form-control required" data-id=' + order.id + ' style="width:120px"><option value="1">New Order</option><option value="2">Processing</option><option value="3" selected>Shipped</option><option value="4">Delivered</option></select>' + '</td></tr>');
-            } else {
-            tableBody.append('<tr><td>' + order.id + '</td><td>' + order.user.first_name + ' ' + order.user.last_name + '</td><td>' + order.checkout_address.street + '</td><td>' + order.checkout_address.phone + '</td><td>' + order.ordered_date + '</td><td>' + order.items + '</td><td>' + order.payment.amount + '</td><td>' + order.payment.tx_ref + '</td><td>' + order.payment.pay_status + '</td><td>' + '<select name="status" id="status" class="form-control required" data-id=' + order.id + ' style="width:120px"><option value="1">New Order</option><option value="2">Processing</option><option value="3">Shipped</option><option value="4" selected>Delivered</option></select>' + '</td></tr>');
-            }
-          });
-        });
-      }, 50000); // fetch data every 50 seconds
+              if (order.delivery_status == 1){
+                tableBody.append('<tr><td>' + order.id + '</td><td>' + order.user.first_name + ' ' + order.user.last_name + '</td><td>' + order.checkout_address.street + '</td><td>' + order.checkout_address.phone + '</td><td>' + order.ordered_date + '</td><td>' + order.items + '</td><td>' + order.payment.amount + '</td><td>' + order.payment.tx_ref + '</td><td>' + order.payment.pay_status + '</td><td>' + '<select name="status" id="status" class="form-control required" data-id=' + order.id + ' style="width:120px"><option value="1" selected>New Order</option><option value="2">Processing</option><option value="3">Shipped</option><option value="4">Delivered</option></select>' + '</td></tr>');
+                } else if (order.delivery_status == 2){
+                tableBody.append('<tr><td>' + order.id + '</td><td>' + order.user.first_name + ' ' + order.user.last_name + '</td><td>' + order.checkout_address.street + '</td><td>' + order.checkout_address.phone + '</td><td>' + order.ordered_date + '</td><td>' + order.items + '</td><td>' + order.payment.amount + '</td><td>' + order.payment.tx_ref + '</td><td>' + order.payment.pay_status + '</td><td>' + '<select name="status" id="status" class="form-control required" data-id=' + order.id + ' style="width:120px"><option value="1">New Order</option><option value="2" selected>Processing</option><option value="3">Shipped</option><option value="4">Delivered</option></select>' + '</td></tr>');
+                } else if (order.delivery_status == 3){
+                tableBody.append('<tr><td>' + order.id + '</td><td>' + order.user.first_name + ' ' + order.user.last_name + '</td><td>' + order.checkout_address.street + '</td><td>' + order.checkout_address.phone + '</td><td>' + order.ordered_date + '</td><td>' + order.items + '</td><td>' + order.payment.amount + '</td><td>' + order.payment.tx_ref + '</td><td>' + order.payment.pay_status + '</td><td>' + '<select name="status" id="status" class="form-control required" data-id=' + order.id + ' style="width:120px"><option value="1">New Order</option><option value="2">Processing</option><option value="3" selected>Shipped</option><option value="4">Delivered</option></select>' + '</td></tr>');
+                } else {
+                tableBody.append('<tr><td>' + order.id + '</td><td>' + order.user.first_name + ' ' + order.user.last_name + '</td><td>' + order.checkout_address.street + '</td><td>' + order.checkout_address.phone + '</td><td>' + order.ordered_date + '</td><td>' + order.items + '</td><td>' + order.payment.amount + '</td><td>' + order.payment.tx_ref + '</td><td>' + order.payment.pay_status + '</td><td>' + '<select name="status" id="status" class="form-control required" data-id=' + order.id + ' style="width:120px"><option value="1">New Order</option><option value="2">Processing</option><option value="3">Shipped</option><option value="4" selected>Delivered</option></select>' + '</td></tr>');
+                }
+              });
+            });
+          }, 50000); // fetch data every 50 seconds
       }
     });
     </script>
