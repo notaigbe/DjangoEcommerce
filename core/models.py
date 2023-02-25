@@ -8,6 +8,7 @@ from django.db.models import Q, F
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.shortcuts import reverse
+from django.utils import timezone
 from django_countries.fields import CountryField
 from phonenumber_field.modelfields import PhoneNumberField
 
@@ -64,6 +65,11 @@ class Item(models.Model):
     def save(self, *args, **kwargs):
         self.total_stock = self.get_total_stock
         super().save(*args, **kwargs)
+
+    @property
+    def articles(self):
+        articles = Article.objects.order_by('-created_on')[:3]
+        return articles
 
     class Meta:
         constraints = [
@@ -172,8 +178,7 @@ class Payment(models.Model):
 
 class Deal(models.Model):
     PACKAGE = (('0', 'Kg'), ('1', 'bag'), ('2', 'bottle'), ('3', 'tonne'), ('4', 'bunch'))
-    name = models.CharField(max_length=255)
-    image = models.ImageField(upload_to='troika/deals/')
+    name = models.ForeignKey(Item, on_delete=models.DO_NOTHING)
     price = models.FloatField()
     packaging = models.CharField(choices=PACKAGE, max_length=6, default=0)
     deal = models.IntegerField()
@@ -182,3 +187,41 @@ class Deal(models.Model):
 
     def __str__(self):
         return self.name
+
+STATUS = ((0, 'DRAFT'), (1, 'PUBLISH'))
+
+
+class Article(models.Model):
+    title = models.CharField(max_length=200, unique=True)
+    slug = models.SlugField(max_length=200, unique=True)
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='blog_posts')
+    updated_on = models.DateTimeField(auto_now=True)
+    post = models.TextField()
+    created_on = models.DateTimeField(auto_now=True)
+    image = models.ImageField(upload_to='troika/farmfresh/news/', default='troika/accounts/products/default.jpg')
+    status = models.IntegerField(choices=STATUS, default=0)
+
+    class Meta:
+        ordering = ['created_on']
+
+    def __str__(self):
+        return self.title
+
+    @property
+    def comments(self):
+        comments = Comment.objects.order_by('-created_on')[:5]
+        return comments
+
+class Comment(models.Model):
+    article = models.ForeignKey(Article, on_delete=models.CASCADE, related_name='comments')
+    author = models.CharField(max_length=80)
+    email = models.EmailField()
+    body = models.TextField()
+    created_on = models.DateTimeField(auto_now_add=True)
+    active = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ['created_on']
+
+    def __str__(self):
+        return 'Comment {} by {}'.format(self.body, self.name)

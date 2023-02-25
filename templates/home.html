@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load humanize %}
 {% block content %}
 
 
@@ -251,6 +252,135 @@
         <!--Grid row-->
 
       </section>
+        {% for item in object_list %}
+        {% if item.deal_set.price > 0 %}
+        <!-- cart banner section -->
+	<section class="cart-banner pt-100 pb-100">
+    	<div class="container">
+        	<div class="row clearfix">
+            	<!--Image Column-->
+            	<div class="image-column col-lg-6">
+                	<div class="image">
+                    	<div class="price-box">
+                        	<div class="inner-price">
+                                <span class="price">
+									{% if item.deal_set.deal %}
+                                    <strong>{{ item.deal_set.deal }}%</strong> <br> off per kg
+									{% else %}
+									<strong>30%</strong> <br> off per kg
+									{% endif %}
+                                </span>
+                            </div>
+                        </div>
+                    	<img src="{{ item.image.url }}" alt="{{ item }}">
+                    </div>
+                </div>
+                <!--Content Column-->
+                <div class="content-column col-lg-6">
+					<h3><span class="orange-text">Deal</span> of the month</h3>
+                    <h4>{{ item.deal_set.title }}</h4>
+                    <div class="text">{{ item.deal_set.description }}</div>
+                    <!--Countdown Timer-->
+                    <div class="time-counter"><div class="time-countdown clearfix" data-countdown="2022/12/31"><div class="counter-column"><div class="inner"><span class="count">00</span>Days</div></div> <div class="counter-column"><div class="inner"><span class="count">00</span>Hours</div></div>  <div class="counter-column"><div class="inner"><span class="count">00</span>Mins</div></div>  <div class="counter-column"><div class="inner"><span class="count">00</span>Secs</div></div></div></div>
+                	<a href="#" class="cart-btn mt-3"><i class="fas fa-shopping-cart"></i> Add to Cart</a>
+                </div>
+            </div>
+        </div>
+    </section>
+        {% endif %}
+        {% endfor %}
+        <!-- features list section -->
+	<div class="list-section pt-80 pb-80">
+		<div class="container">
+
+			<div class="row">
+				<div class="col-lg-4 col-md-6 mb-4 mb-lg-0">
+					<div class="list-box d-flex align-items-center">
+						<div class="list-icon">
+							<i class="fas fa-shipping-fast"></i>
+						</div>
+						<div class="content">
+							<h3>Same Day Delivery</h3>
+							<p>For orders within Benin City</p>
+						</div>
+					</div>
+				</div>
+				<div class="col-lg-4 col-md-6 mb-4 mb-lg-0">
+					<div class="list-box d-flex align-items-center">
+						<div class="list-icon">
+							<i class="fas fa-phone-volume"></i>
+						</div>
+						<div class="content">
+							<h3>Customer Support</h3>
+							<p>Get support all day</p>
+						</div>
+					</div>
+				</div>
+				<div class="col-lg-4 col-md-6">
+					<div class="list-box d-flex justify-content-start align-items-center">
+						<div class="list-icon">
+							<i class="fas fa-sync"></i>
+						</div>
+						<div class="content">
+							<h3>Refund</h3>
+							<p>Get refund within 3 days!</p>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</div>
+	</div>
+	<!-- end features list section -->
+
+<!-- latest news -->
+
+        {% if articles.count > 0 %}
+	<div class="latest-news pt-150 pb-150">
+		<div class="container">
+
+			<div class="row">
+				<div class="col-lg-8 offset-lg-2 text-center">
+					<div class="section-title">
+						<h3><span class="orange-text">Our</span> News</h3>
+						<p>Get the latest on all our products, services and upcoming deals.</p>
+					</div>
+				</div>
+			</div>
+
+			<div class="row">
+                {% for article in articles %}
+                {% if article.status == 1 %}
+				<div class="col-lg-4 col-md-6">
+					<div class="single-latest-news">
+						<a href="{% url 'core:article_detail' article.slug %}"><div class="latest-news-bg news-bg-1">
+                            <img src="{{ article.image.url }}">
+                        </div></a>
+						<div class="news-text-box">
+							<h3><a href="{% url 'core:article_detail' article.slug %}">{{ article.title }}</a></h3>
+							<p class="blog-meta">
+								<span class="author"><i class="fas fa-user"></i> {{ article.author }}</span>
+								<span class="date"><i class="fas fa-calendar"></i> posted {{ article.created_on|naturaltime }}</span>
+							</p>
+							<p class="excerpt">{{ article.post }}</p>
+							<a href="{% url 'core:article_detail' article.slug %}" class="read-more-btn">read more <i class="fas fa-angle-right"></i></a>
+						</div>
+					</div>
+				</div>
+                {% endif %}
+                {% endfor %}
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-lg-12 text-center">
+					<a href="{% url 'core:article_list' %}" class="boxed-btn">More News</a>
+				</div>
+			</div>
+		</div>
+	</div>
+        {% endif %}
+	<!-- end latest news -->
+    <!-- end cart banner section -->
       <!--Section: Products v.3-->
 
       <!--Pagination-->
@@ -293,7 +423,7 @@
       </nav-->
       <!--Pagination-->
 
-    </div>
+
   </section>
   <!--Main layout-->
 

@@ -62,7 +62,13 @@
 </head>
 
 <body>
-
+<!--PreLoader-->
+    <div class="loader">
+        <div class="loader-inner">
+            <div class="circle"></div>
+        </div>
+    </div>
+    <!--PreLoader Ends-->
   <!-- Navbar -->
   <nav class="navbar fixed-top navbar-expand-lg navbar-light white scrolling-navbar">
     <div class="container">
@@ -123,6 +129,12 @@
                 <span class="clearfix d-none d-sm-inline-block"> Add Product </span>
                 </a>
             </li>
+            <li class="nav-item">
+                <a href="{% url 'core:publish_news' %}" class="nav-link waves-effect">
+                <i class="fas fa-rss"></i>
+                <span class="clearfix d-none d-sm-inline-block"> Publish News </span>
+                </a>
+            </li>
             {% endif %}
              <li class="nav-item">
                  <a class="nav-link waves-effect text-muted" href="{% url 'logout' %}">
@@ -131,7 +143,7 @@
                  </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link waves-effect text-muted" href="{% url 'password_reset' %}">
+                <a class="nav-link waves-effect text-muted" href="{% url 'core:password_reset' %}">
                 <i class="fas fa-key"></i>
                     <span class="clearfix d-none d-sm-inline-block">Reset Password</span>
                 </a>

@@ -4,7 +4,7 @@ from .models import (
     OrderItem,
     Order,
     CheckoutAddress,
-    Payment, Stock
+    Payment, Stock, Deal, Article, Comment
 )
 
 admin.site.register(Item)
@@ -13,3 +13,13 @@ admin.site.register(Order)
 admin.site.register(CheckoutAddress)
 admin.site.register(Payment)
 admin.site.register(Stock)
+admin.site.register(Deal)
+class ArticleAdmin(admin.ModelAdmin):
+    list_display = ('title', 'slug', 'status', 'created_on', 'image')
+    list_filter = ('status',)
+    search_fields = ['title', 'post']
+    prepopulated_fields = {'slug': ('title',)}
+
+
+admin.site.register(Article, ArticleAdmin)
+admin.site.register(Comment)

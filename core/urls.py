@@ -1,3 +1,4 @@
+from django.contrib.auth.views import PasswordResetDoneView, PasswordResetConfirmView, PasswordResetCompleteView
 from django.urls import path
 from .views import (
     remove_from_cart,
@@ -9,7 +10,8 @@ from .views import (
     HomeView,
     OrderSummaryView,
     CheckoutView,
-    PaymentView, SignUpView, account_view, OrdersView, latest_orders, update_status, add_product, update_product
+    PaymentView, SignUpView, account_view, OrdersView, latest_orders, update_status, add_product, update_product,
+    change_password, password_reset_request, ArticleDetail, ArticleList, publish_news
 )
 
 app_name = 'core'
@@ -32,6 +34,18 @@ urlpatterns = [
     path('update_status/', update_status, name='update_status'),
     path('add_product/', add_product, name='add_product'),
     path('update_product/<product_id>/', update_product, name='update_product'),
+    path('article/<slug:slug>/', ArticleDetail.as_view(), name='article_detail'),
+    path('articles/', ArticleList.as_view(), name='article_list'),
+    path('change_password/', change_password, name='change_password'),
+    path('publish_news/', publish_news, name='publish_news'),
+
+    path('password_reset/', password_reset_request, name='password_reset'),
+    path('password_reset/done/', PasswordResetDoneView.as_view(template_name='registration/password_reset_done.html'),
+         name='password_reset_done'),
+    path('password_reset/confirm/<uidb64>/<token>/',
+         PasswordResetConfirmView.as_view(template_name='registration/password_reset_confirm.html'), name='password_reset_confirm'),
+    path('password_reset/complete/', PasswordResetCompleteView.as_view(template_name='registration/password_reset_complete.html'),
+         name='password_reset_complete'),
 
 ]
 

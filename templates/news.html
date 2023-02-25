@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+{% block content %}
+
+	<!-- search area -->
+	<div class="search-area">
+		<div class="container">
+			<div class="row">
+				<div class="col-lg-12">
+					<span class="close-btn"><i class="fas fa-window-close"></i></span>
+					<div class="search-bar">
+						<div class="search-bar-tablecell">
+							<h3>Search For:</h3>
+							<input type="text" placeholder="Keywords">
+							<button type="submit">Search <i class="fas fa-search"></i></button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- end search arewa -->
+	
+	<!-- breadcrumb-section -->
+	<div class="breadcrumb-section breadcrumb-bg">
+		<div class="container">
+			<div class="row">
+				<div class="col-lg-8 offset-lg-2 text-center">
+					<div class="breadcrumb-text">
+						<p>Organic Information</p>
+						<h1>News Articles</h1>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- end breadcrumb section -->
+
+	<!-- latest news -->
+	<div class="latest-news pt-150 pb-150">
+		<div class="container">
+
+			<div class="row">
+                {% for article in object_list %}
+                {% if article.status == 1 %}
+				<div class="col-lg-4 col-md-6">
+					<div class="single-latest-news">
+						<a href="{% url 'core:article_detail' article.slug %}"><div class="latest-news-bg news-bg-1">
+                            <img src="{{ article.image.url }}">
+                        </div></a>
+						<div class="news-text-box">
+							<h3><a href="{% url 'core:article_detail' article.slug %}">{{ article.title }}</a></h3>
+							<p class="blog-meta">
+								<span class="author"><i class="fas fa-user"></i> {{ article.author }}</span>
+								<span class="date"><i class="fas fa-calendar"></i> posted {{ article.created_on|naturaltime }}</span>
+							</p>
+							<p class="excerpt">{{ article.post }}</p>
+							<a href="{% url 'core:article_detail' article.slug %}" class="read-more-btn">read more <i class="fas fa-angle-right"></i></a>
+						</div>
+					</div>
+				</div>
+                {% endif %}
+                {% endfor %}
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-lg-12 text-center">
+					<a href="#" class="boxed-btn">More News</a>
+				</div>
+			</div>
+		</div>
+
+	<!-- end latest news -->
+
+	<!-- logo carousel -->
+	<div class="logo-carousel-section">
+		<div class="container">
+			<div class="row">
+				<div class="col-lg-12">
+					<div class="logo-carousel-inner">
+						<div class="single-logo-item">
+							<img src="assets/img/company-logos/1.png" alt="">
+						</div>
+						<div class="single-logo-item">
+							<img src="assets/img/company-logos/2.png" alt="">
+						</div>
+						<div class="single-logo-item">
+							<img src="assets/img/company-logos/3.png" alt="">
+						</div>
+						<div class="single-logo-item">
+							<img src="assets/img/company-logos/4.png" alt="">
+						</div>
+						<div class="single-logo-item">
+							<img src="assets/img/company-logos/5.png" alt="">
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- end logo carousel -->
+
+{% endblock %}}

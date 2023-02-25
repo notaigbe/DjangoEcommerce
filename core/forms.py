@@ -6,11 +6,11 @@ from django_countries.widgets import CountrySelectWidget
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, get_user_model
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import UserCreationForm, PasswordChangeForm, PasswordResetForm
 from phonenumber_field.formfields import PhoneNumberField
 from phonenumber_field.widgets import PhoneNumberPrefixWidget, RegionalPhoneNumberWidget
 
-from core.models import Item
+from core.models import Item, Article
 
 PAYMENT = (
     ('S', 'Stripe'),
@@ -128,4 +128,32 @@ class ProductUpdateForm(forms.ModelForm):
             'topup_stock': NumberInput(attrs={'class': 'form-control'}),
             'total_stock': NumberInput(attrs={'class': 'form-control'}),
             'current_stock': NumberInput(attrs={'class': 'form-control'}),
+        }
+
+class ChangePasswordForm(PasswordChangeForm):
+    old_password = forms.CharField(label="Old password:",
+                                   max_length=32, widget=forms.PasswordInput(attrs={'class': 'form-control'}))
+    new_password1 = forms.CharField(label="New password:", help_text="<small><ul class='form-text text-muted'><li>Your password can\'t be too similar to your other personal information.</li><li>Your password must contain at least 8 characters.</li><li>Your password can\'t be a commonly used password.</li><li>Your password can\'t be entirely numeric.</li></ul></small>",
+                                    max_length=32, widget=forms.PasswordInput(attrs={'class': 'form-control'}))
+    new_password2 = forms.CharField(label="New password confirmation:",
+                                    max_length=32, widget=forms.PasswordInput(attrs={'class': 'form-control'}))
+
+    class Meta:
+        model = User
+
+class ResetPasswordForm(forms.Form):
+    email = forms.EmailField(label="",
+                             max_length=50, widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Registered email address'}))
+
+class NewsArticleForm(forms.ModelForm):
+    class Meta:
+        model = Article
+        fields = ('title', 'slug', 'author', 'post', 'image', 'status')
+        widgets = {
+            'title': TextInput(attrs={'class': 'form-control', 'placeholder':'News Title'}),
+            'slug': TextInput(attrs={'class': 'form-control', 'readonly':'readonly', 'placeholder':'Slug'}),
+            'author': Select(attrs={'class': 'form-control', 'readonly':'readonly', 'placeholder':'Author'}),
+            'post': Textarea(attrs={'class': "form-control w-100", 'placeholder':'News Post'}),
+            'image': FileInput(),
+            'status': Select(attrs={'class': 'form-control'})
         }

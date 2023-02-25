@@ -1,19 +1,29 @@
 import json
 import os
 
+import requests
+from allauth.account.forms import ChangePasswordForm
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import UserCreationForm, PasswordResetForm
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.models import User
+from django.contrib.auth.tokens import default_token_generator
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.mail import BadHeaderError
 from django.core.serializers import serialize
-from django.http import JsonResponse
+from django.db.models import Q
+from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.template.loader import render_to_string
 from django.urls import reverse_lazy
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_encode
+from django.utils.text import slugify
 from django.views import generic
 from django.views.generic import ListView, DetailView, View
 from django.utils import timezone
@@ -21,13 +31,14 @@ from pypaystack import Transaction
 from rave_python import Rave, rave
 from rave_python.rave_exceptions import TransactionVerificationError
 
-from .forms import CheckoutForm, RegistrationForm, AccountUpdateform, ProductUpdateForm
+from .forms import CheckoutForm, RegistrationForm, AccountUpdateform, ProductUpdateForm, ResetPasswordForm, \
+    NewsArticleForm
 from .models import (
     Item,
     Order,
     OrderItem,
     CheckoutAddress,
-    Payment, Deal, Stock
+    Payment, Deal, Stock, Article
 )
 
 import stripe
@@ -39,6 +50,13 @@ stripe.api_key = settings.STRIPE_KEY
 class HomeView(ListView):
     model = Item
     template_name = "home.html"
+
+    def get_context_data(self, **kwargs):
+        # Call the base implementation first to get a context
+        context = super().get_context_data(**kwargs)
+        # Add in a QuerySet of all the articles
+        context['articles'] = Article.objects.all()
+        return context
 
 
 class ProductView(DetailView):
@@ -535,3 +553,118 @@ def update_product(request, product_id):
         'product': product
     }
     return render(request, 'update_product.html', context)
+
+def change_password(request):
+    if request.method == 'POST':
+        form = ChangePasswordForm(data=request.POST, user=request.user)
+        if form.is_valid():
+            form.save()
+            update_session_auth_hash(request, form.user)
+            messages.success(request, "Password Changed Successfully")
+            return redirect('home')
+    else:
+        form = ChangePasswordForm(user=request.user)
+        print(form)
+    context = {
+        'form': form,
+    }
+    return render(request, 'registration/change_password.html', context)
+
+
+def password_reset_request(request):
+    if request.method == "POST":
+        password_reset_form = ResetPasswordForm(request.POST)
+        if password_reset_form.is_valid():
+            data = password_reset_form.cleaned_data['email']
+            associated_users = User.objects.filter(Q(email=data))
+            if associated_users.exists():
+                for user in associated_users:
+                    subject = "Password Reset Requested"
+                    email_template_name = "registration/password_reset_email.txt"
+                    c = {
+                    "email":user.email,
+                    'domain':'farmfresh.tacommodity.com',
+                    'site_name': 'https://farmfresh.tacommodity.com',
+                    "uid": urlsafe_base64_encode(force_bytes(user.pk)),
+                    "user": user,
+                    'token': default_token_generator.make_token(user),
+                    'protocol': 'https',
+                    }
+                    email = render_to_string(email_template_name, c)
+                    try:
+                        requests.post(
+                            f"https://api.mailgun.net/v3/{os.environ.get('MAILGUN_DOMAIN_NAME')}/messages",
+                            auth=("api", os.environ.get('MAILGUN_PERSONAL_API_KEY')),
+
+                            data={
+                                "from": f"Farmfresh <postmaster@{os.environ.get('MAILGUN_DOMAIN_NAME')}>",
+                                "to": [user.email],
+                                "subject": subject,
+                                "template": "password_reset",
+                                "v:email_body": email,
+                                "v:protocol": c['protocol'],
+                                "v:domain": c['domain'],
+                                "v:uid": c['uid'],
+                                "v:token": c['token'],
+                                "v:website": c['site_name'],
+                            })
+
+                        # send_mail(subject, email, 'info@gnotable.ng' , [user.email], fail_silently=False)
+                    except BadHeaderError:
+                        return HttpResponse('Invalid header found.')
+                    messages.success(request, "We've emailed you instructions for setting your password, if an account exists with the email you entered. You should receive them shortly. If you don't receive an email, please make sure you've entered the address you registered with, and check your spam folder.")
+                    return redirect ("core:home")
+                messages.error(request, 'An invalid email has been entered.')
+    password_reset_form = ResetPasswordForm()
+    return render(request=request, template_name="registration/password_reset_form.html", context={"form":password_reset_form})
+
+class ArticleList(generic.ListView):
+    queryset = Article.objects.filter(status=1).order_by('-created_on')
+    paginate_by = 9
+    template_name = 'news.html'
+
+    def get_context_data(self, **kwargs):
+        context_data = super().get_context_data(**kwargs)
+        return context_data
+
+
+class ArticleDetail(generic.DetailView):
+    model = Article
+    template_name = 'single-news.html'
+
+    def get_context_data(self, **kwargs):
+        context_data = super().get_context_data(**kwargs)
+        return context_data
+
+
+def search_article(request):
+    search_item = request.GET.get('search_item')
+    articles = Article.objects.filter(post__icontains=search_item).filter(status=1).order_by(
+        '-created_on') | Article.objects.filter(author__username__icontains=search_item).filter(status=1).order_by(
+        '-created_on') | Article.objects.filter(author__first_name__icontains=search_item).filter(status=1).order_by(
+        '-created_on') | Article.objects.filter(author__last_name__icontains=search_item).filter(status=1).order_by(
+        '-created_on')
+
+    return render(request, 'news-post.html',
+                  {'article_list': articles})
+
+def publish_news(request):
+    if request.method == 'POST':
+        form = NewsArticleForm(request.POST)
+        print(form)
+        if form.is_valid():
+            form.slug = slugify(request.POST['title'])
+            form.save()
+            file = request.FILES['image']
+
+            messages.success(request, 'News Published')
+            return redirect('core:publish_news')
+        else:
+            messages.error(request, form.errors.as_data)
+            form = NewsArticleForm(request.POST)
+    else:
+        form = NewsArticleForm(initial={'author':request.user, 'slug':'news-reference'})
+    context = {
+        'article_form': form,
+    }
+    return render(request, 'news-post.html', context)
