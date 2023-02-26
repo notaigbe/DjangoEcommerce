@@ -32,7 +32,7 @@ from rave_python import Rave, rave
 from rave_python.rave_exceptions import TransactionVerificationError
 
 from .forms import CheckoutForm, RegistrationForm, AccountUpdateform, ProductUpdateForm, ResetPasswordForm, \
-    NewsArticleForm
+    NewsArticleForm, DealsForm
 from .models import (
     Item,
     Order,
@@ -536,20 +536,33 @@ def add_product(request):
 def update_product(request, product_id):
     product = Item.objects.get(pk=product_id)
     if request.method == 'POST':
-        form = ProductUpdateForm(request.POST, instance=product)
-        print(form)
-        if form.is_valid():
-            form.save()
+        if request.POST['slug']:
+            form = ProductUpdateForm(request.POST, instance=product)
+            print(form)
+            if form.is_valid():
+                form.save()
 
-            messages.success(request, 'Product Updated')
-            return redirect('core:update_product', product_id)
+                messages.success(request, 'Product Updated')
+                return redirect('core:update_product', product_id)
+            else:
+                messages.error(request, form.errors.as_data)
+                form = ProductUpdateForm(request.POST)
         else:
-            messages.error(request, form.errors.as_data)
-            form = ProductUpdateForm(request.POST)
+            form1 = DealsForm(request.POST, instance=product)
+            if form1.is_valid():
+                form1.save()
+
+                messages.success(request, 'Product Updated')
+                return redirect('core:update_product', product_id)
+            else:
+                messages.error(request, form1.errors.as_data)
+                form = DealsForm(request.POST)
     else:
         form = ProductUpdateForm(instance=product)
+        form1 = DealsForm(instance=product, initial={'name': product.item_name})
     context = {
         'product_form': form,
+        'deal_form': form1,
         'product': product
     }
     return render(request, 'update_product.html', context)

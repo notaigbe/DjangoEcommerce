@@ -10,7 +10,7 @@ from django.contrib.auth.forms import UserCreationForm, PasswordChangeForm, Pass
 from phonenumber_field.formfields import PhoneNumberField
 from phonenumber_field.widgets import PhoneNumberPrefixWidget, RegionalPhoneNumberWidget
 
-from core.models import Item, Article
+from core.models import Item, Article, Deal
 
 PAYMENT = (
     ('S', 'Stripe'),
@@ -152,8 +152,21 @@ class NewsArticleForm(forms.ModelForm):
         widgets = {
             'title': TextInput(attrs={'class': 'form-control', 'placeholder':'News Title'}),
             'slug': TextInput(attrs={'class': 'form-control', 'readonly':'readonly', 'placeholder':'Slug'}),
-            'author': Select(attrs={'class': 'form-control', 'readonly':'readonly', 'placeholder':'Author'}),
+            'author': TextInput(attrs={'class': 'form-control', 'readonly':'readonly', 'placeholder':'Author'}),
             'post': Textarea(attrs={'class': "form-control w-100", 'placeholder':'News Post'}),
             'image': FileInput(),
             'status': Select(attrs={'class': 'form-control'})
+        }
+
+class DealsForm(forms.ModelForm):
+    class Meta:
+        model = Deal
+        fields = ('name', 'price', 'packaging', 'deal', 'title', 'description')
+        widgets = {
+            'name': TextInput(attrs={'class': 'form-control', 'readonly':'readonly', 'placeholder':'Product'}),
+            'price': NumberInput(attrs={'class': 'form-control', 'placeholder':'Slug'}),
+            'packaging': Select(attrs={'class': 'form-control', 'placeholder':'Author'}),
+            'deal': NumberInput(attrs={'class': "form-control w-100", 'placeholder':'News Post'}),
+            'title': TextInput(attrs={'class': 'form-control'}),
+            'description': TextInput(attrs={'class': 'form-control'})
         }

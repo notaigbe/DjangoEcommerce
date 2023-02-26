@@ -215,7 +215,8 @@
               <!--Card content-->
               <div class="card-body text-center">
                 <!--Category & Title-->
-                <a href="" class="grey-text">
+                  {% if not request.user.is_staff %}
+                <a href="{{ item.get_absolute_url }}" class="grey-text">
                   <h5>{{ item.get_category_display}}</h5>
                 </a>
                 <h5>
@@ -225,7 +226,18 @@
                     </a>
                   </strong>
                 </h5>
-
+                {% else %}
+                   <a href="{% url 'core:update_product' item.id %}" class="grey-text">
+                  <h5>{{ item.get_category_display}}</h5>
+                </a>
+                <h5>
+                  <strong>
+                    <a href="{% url 'core:update_product' item.id %}" class="dark-grey-text">{{ item.item_name }}
+                      <span class="badge badge-pill {% if item.get_label_display == 'New' %} danger-color {% else %} primary-color {% endif %}">{{ item.get_label_display }}</span>
+                    </a>
+                  </strong>
+                </h5>
+                  {% endif %}
                 <h4 class="font-weight-bold orange-text" style="color:#051922;">
                   <strong><sup>N</sup>
                   {% if item.discount_price %}
