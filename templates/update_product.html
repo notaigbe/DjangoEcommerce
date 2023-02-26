@@ -44,7 +44,9 @@
             </div>
             <hr>
         </div>
-            <div class="col-12 col-lg-4 billing-address-form">
+
+        {% if form1 %}
+        <div class="col-12 col-lg-4 billing-address-form">
 
             {% if product %}
             <h2>Discount Promo</h2>
@@ -78,6 +80,7 @@
 
         </form>
         </div>
+        {% endif %}
     </div>
   </div>
 
