@@ -102,6 +102,7 @@ class OrdersView(LoginRequiredMixin, View):
                 return redirect("/")
 
 class CustomerOrdersView(LoginRequiredMixin, View):
+
     def get(self, *args, **kwargs):
 
         try:
@@ -633,7 +634,7 @@ def password_reset_request(request):
 
 class ArticleList(generic.ListView):
     queryset = Article.objects.filter(status=1).order_by('-created_on')
-    paginate_by = 1
+    paginate_by = 12
     template_name = 'news.html'
 
     def get_context_data(self, **kwargs):
