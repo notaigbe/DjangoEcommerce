@@ -38,6 +38,7 @@ psycopg2==2.9.5
 pycparser==2.21
 pycryptodome==3.17
 PyJWT==2.6.0
+pypaystack==1.24
 pypng==0.20220715.0
 python-dateutil==2.8.2
 python-dotenv==0.21.1
