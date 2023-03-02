@@ -27,7 +27,7 @@ from django.utils.text import slugify
 from django.views import generic
 from django.views.generic import ListView, DetailView, View
 from django.utils import timezone
-from pypaystack import Transaction
+from pypaystack2.api import Transaction
 from rave_python import Rave, rave
 from rave_python.rave_exceptions import TransactionVerificationError
 
