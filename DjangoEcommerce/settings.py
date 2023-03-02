@@ -31,7 +31,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1', 'urchin-app-pwz4d.ondigitalocean.app', 'farmfresh.tacommodity.com', 'localhost']
+ALLOWED_HOSTS = ['127.0.0.1', 'urchin-app-pwz4d.ondigitalocean.app', 'farmfresh.tacommodity.com', 'localhost', 'farmfresh-9986.onrender.com']
 
 
 # Application definition
@@ -180,6 +180,7 @@ LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
 SECURE_SSL_REDIRECT = True
+# SECURE_SSL_REDIRECT = True
 #stripe payment
 STRIPE_KEY = ''
 
