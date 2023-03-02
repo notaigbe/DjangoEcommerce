@@ -25,10 +25,10 @@
             <td>{{ order_item.item.item_name }}</td>
             <td>
             {% if order_item.item.discount_price %}
-                <del>${{ order_item.item.price}}</del> 
-                N{{ order_item.item.discount_price }}
+                <del><del style="text-decoration-style: double">N</del>{{ order_item.item.price}}</del>
+                <del style="text-decoration-style: double">N</del>{{ order_item.item.discount_price }}
             {% else %}
-                N{{ order_item.item.price}}
+                <del style="text-decoration-style: double">N</del>{{ order_item.item.price}}
             {% endif %}
 
             </td>
@@ -39,10 +39,10 @@
             </td>
             <td>
             {% if order_item.item.discount_price %}
-                N{{ order_item.get_discount_item_price }}
-                <span class="badge badge-success" >Saved N{{ order_item.get_amount_saved }}</span>
+                <del style="text-decoration-style: double">N</del>{{ order_item.get_discount_item_price }}
+                <span class="badge badge-success" >Saved <del style="text-decoration-style: double">N</del>{{ order_item.get_amount_saved }}</span>
             {% else %}
-                N{{ order_item.get_total_item_price}}
+                <del style="text-decoration-style: double">N</del>{{ order_item.get_total_item_price}}
             {% endif %}
              <a href="{% url 'core:remove-from-cart' order_item.item.pk %}">
                 <i class="fas fa-trash float-right text-danger"></i>
@@ -67,7 +67,7 @@
         {% if object.get_total_price %}
         <tr>
             <td colspan="4"><b>Total Order Price</b></td>
-            <td>N{{ object.get_total_price }}</td>
+            <td><del style="text-decoration-style: double">N</del>{{ object.get_total_price }}</td>
         </tr>
          <tr>
             <td colspan="5">

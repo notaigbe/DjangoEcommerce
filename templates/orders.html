@@ -50,10 +50,10 @@
             </td>
             <td>
             {% if order.item.discount_price %}
-                <del>N{{ order.get_total_price }}</del>
-                N{{ order.item.discount_price }}
+                <del><del style="text-decoration-style: double">N</del>{{ order.get_total_price }}</del>
+                <del style="text-decoration-style: double">N</del>{{ order.item.discount_price }}
             {% else %}
-                N{{ order.payment.amount }}
+                <del style="text-decoration-style: double">N</del>{{ order.payment.amount }}
             {% endif %}
             </td>
             {% if request.user.is_staff %}

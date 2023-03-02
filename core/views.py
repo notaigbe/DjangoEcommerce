@@ -633,7 +633,7 @@ def password_reset_request(request):
 
 class ArticleList(generic.ListView):
     queryset = Article.objects.filter(status=1).order_by('-created_on')
-    paginate_by = 9
+    paginate_by = 1
     template_name = 'news.html'
 
     def get_context_data(self, **kwargs):
