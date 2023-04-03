@@ -11,7 +11,7 @@ from .views import (
     OrderSummaryView,
     CheckoutView,
     PaymentView, SignUpView, account_view, OrdersView, latest_orders, update_status, add_product, update_product,
-    change_password, password_reset_request, ArticleDetail, ArticleList, publish_news
+    change_password, password_reset_request, ArticleDetail, ArticleList, publish_news, publish_post, update_post
 )
 
 app_name = 'core'
@@ -34,6 +34,8 @@ urlpatterns = [
     path('update_status/', update_status, name='update_status'),
     path('add_product/', add_product, name='add_product'),
     path('update_product/<product_id>/', update_product, name='update_product'),
+    path('publish_post/<_id>/<status>', publish_post, name='publish_post'),
+    path('update_post/<_id>/', update_post, name='update_post'),
     path('article/<slug:slug>/', ArticleDetail.as_view(), name='article_detail'),
     path('articles/', ArticleList.as_view(), name='article_list'),
     path('change_password/', change_password, name='change_password'),

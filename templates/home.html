@@ -365,16 +365,18 @@
                 {% if article.status == 1 %}
 				<div class="col-lg-4 col-md-6">
 					<div class="single-latest-news">
-						<a href="{% url 'core:article_detail' article.slug %}"><div class="latest-news-bg news-bg-1">
-                            <img src="{{ article.image.url }}">
-                        </div></a>
+						<a href="{% url 'core:article_detail' article.slug %}">
+                          <div class="latest-news-bg news-bg-1 d-flex justify-content-center">
+                            <img src="{{ article.image.url }}" class="rounded">
+                          </div>
+                        </a>
 						<div class="news-text-box">
 							<h3><a href="{% url 'core:article_detail' article.slug %}">{{ article.title }}</a></h3>
 							<p class="blog-meta">
-								<span class="author"><i class="fas fa-user"></i> {{ article.author }}</span>
+								<span class="author"><i class="fas fa-user"></i> {{ article.author.first_name }} {{ article.author.last_name }}</span>
 								<span class="date"><i class="fas fa-calendar"></i> posted {{ article.created_on|naturaltime }}</span>
 							</p>
-							<p class="excerpt">{{ article.post }}</p>
+							<p class="excerpt">{{ article.post|truncatechars:200 }}</p>
 							<a href="{% url 'core:article_detail' article.slug %}" class="read-more-btn">read more <i class="fas fa-angle-right"></i></a>
 						</div>
 					</div>

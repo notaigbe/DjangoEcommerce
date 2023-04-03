@@ -189,11 +189,12 @@ class Deal(models.Model):
         return self.name
 
 STATUS = ((0, 'DRAFT'), (1, 'PUBLISH'))
-
+CATEGORY = (('palmoil', 'Palm Oil'), ('honey', 'Honey'), ('fish', 'Smoked Catfish'))
 
 class Article(models.Model):
     title = models.CharField(max_length=200, unique=True)
     slug = models.SlugField(max_length=200, unique=True)
+    category = models.CharField(choices=CATEGORY, max_length=7, default='fish')
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='blog_posts')
     updated_on = models.DateTimeField(auto_now=True)
     post = models.TextField()

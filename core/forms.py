@@ -1,4 +1,4 @@
-from django import forms
+
 from django.db.models import ImageField
 from django.forms import TextInput, NumberInput, Textarea, Select, FileInput
 from django_countries.fields import CountryField
@@ -146,13 +146,15 @@ class ResetPasswordForm(forms.Form):
                              max_length=50, widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Registered email address'}))
 
 class NewsArticleForm(forms.ModelForm):
+    image = forms.ImageField()
     class Meta:
         model = Article
-        fields = ('title', 'slug', 'author', 'post', 'image', 'status')
+        fields = ('category','title', 'slug', 'author', 'post', 'image', 'status')
         widgets = {
-            'title': TextInput(attrs={'class': 'form-control', 'placeholder':'News Title'}),
-            'slug': TextInput(attrs={'class': 'form-control', 'readonly':'readonly', 'placeholder':'Slug'}),
-            'author': TextInput(attrs={'class': 'form-control', 'readonly':'readonly', 'placeholder':'Author'}),
+            'category': Select(attrs={'class': 'form-control'}),
+            'title': TextInput(attrs={'class': 'form-control', 'placeholder':'News Title', 'id':'title'}),
+            'slug': TextInput(attrs={'class': 'form-control', 'placeholder':'Slug', 'id':'slug', 'hidden':'hidden'}),
+            'author': TextInput(attrs={'class': 'form-control', 'placeholder':'Author', 'hidden': 'hidden'}),
             'post': Textarea(attrs={'class': "form-control w-100", 'placeholder':'News Post'}),
             'image': FileInput(),
             'status': Select(attrs={'class': 'form-control'})

@@ -648,6 +648,7 @@ class ArticleDetail(generic.DetailView):
 
     def get_context_data(self, **kwargs):
         context_data = super().get_context_data(**kwargs)
+        context_data['articles'] = Article.objects.all()
         return context_data
 
 
@@ -663,15 +664,20 @@ def search_article(request):
                   {'article_list': articles})
 
 def publish_news(request):
+    articles = Article.objects.filter(author=request.user)
     if request.method == 'POST':
-        form = NewsArticleForm(request.POST)
+        form = NewsArticleForm(request.POST, files=request.FILES)
         print(form)
         if form.is_valid():
             form.slug = slugify(request.POST['title'])
             form.save()
             file = request.FILES['image']
 
-            messages.success(request, 'News Published')
+            status = request.POST['status']
+            if status == 'DRAFT':
+                messages.success(request, 'Draft saved')
+            else:
+                messages.success(request, 'Post Published')
             return redirect('core:publish_news')
         else:
             messages.error(request, form.errors.as_data)
@@ -680,5 +686,39 @@ def publish_news(request):
         form = NewsArticleForm(initial={'author':request.user, 'slug':'news-reference'})
     context = {
         'article_form': form,
+        'articles': articles
+    }
+    return render(request, 'news-post.html', context)
+
+
+@login_required
+def publish_post(request, _id, status):
+
+    form = NewsArticleForm(initial={'author':request.user, 'slug':'news-reference'})
+    new_post = Article.objects.get(id=_id)
+    new_post.status = status
+    new_post.save()
+    articles = Article.objects.filter(author=request.user)
+    context = {
+        'article_form': form,
+        'posts': articles
+    }
+    return render(request, 'news-post.html', context)
+
+
+@login_required
+def update_post(request, _id):
+    article = Article.objects.get(id=_id)
+    form = NewsArticleForm(request.POST or None,request.FILES or None, instance=article)
+    if form.is_valid():
+        form.save()
+
+        messages.success(request, 'Post Updated')
+        return redirect('core:publish_news')
+
+    articles = Article.objects.filter(author=request.user)
+    context = {
+        'article_form': form,
+        'articles': articles
     }
     return render(request, 'news-post.html', context)

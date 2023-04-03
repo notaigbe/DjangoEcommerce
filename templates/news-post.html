@@ -7,41 +7,64 @@
 
 <div class="col-12 col-lg-6 billing-address-form">
     <h2>Publish News Post</h2>
-<form method="post" class="container mt-5" enctype="multipart/form-data">
+<form method="post" action="" class="container mt-5" enctype="multipart/form-data">
     {% csrf_token %}
     {% for field in article_form %}
     <p class="mt-3">
         {{ field }}
-    </p>
-    {% if field.help_text %}
-        <small style="color:grey;">{{ field.help_text }}</small>
-        {% endif %}
-     {% endfor %}
-    {% for field in article_form %}
         {% for error in field.errors %}
             <p style="color:red">{{error}}</p>
         {% endfor %}
-    {% endfor %}
-
+        {% if field.help_text %}
+        <small style="color:grey;">{{ field.help_text }}</small>
+        {% endif %}
     {% if article_form.non_field_errors %}
         <div style="color: red">
             <p>{{ article_form.non_field_errors }}</p>
         </div>
         {% endif %}
-
+    </p>
+    {% endfor %}
 
     <button type="submit" class="btn btn-primary" >Save Changes</button>
-    <a href="/" class="btn btn-success"> HOME</a>
+    <a href="{% url 'core:publish_news' %}" class="btn btn-success"> New Post</a>
 
 </form>
 </div>
-    <div class="col-12 col-lg-6 billing-address-form mt-5">
+    <div class="col-12 col-lg-6 billing-address-form mt-5" data-aos="fade-left" data-aos-delay="5" data-aos-once="true">
+        {% for article in articles %}
+        <a href="{% url 'core:update_post' article.id %}">{{ article }}</a>
+         <div class="image d-flex" style="width:100px">
+            <img src="{{ article.image.url }}" alt="{{ article.image.url }}" class="img-thumbnail m-2" id="article-img">
+
+        {% if article.post_image_1 %}
+            <img src="{{ article.post_image_1.url }}" alt="{{ article.image.url }}" class="img-thumbnail m-2" id="post-img">
+        {% endif %}
+        {% if article.post_image_2 %}
+            <img src="{{ article.post_image_2.url }}" alt="{{ article.image.url }}" class="img-thumbnail m-2" id="post-img-1">
+        {% endif %}
+         </div>
+
+        {% if article.status == 0 %}
+         <a href="{% url 'core:publish_post' article.id 1 %}" class="btn btn-primary" >Publish</a>
+         {% else %}
+         <a href="{% url 'core:publish_post' article.id 0 %}" class="btn btn-warning" >Unpublish</a>
+         {% endif %}
     <hr>
-     <div class="image d-flex justify-content-center">
-        <img src="{{ article.image.url }}" alt="{{ article.image.url }}" class="img-thumbnail" id="article-img">
-    </div>
-    <hr>
+        {% endfor %}
   </div>
+
 </div>
   </div>
+<script>
+    var title = document.getElementById("title");
+    var slug = document.getElementById("slug");
+
+    title.addEventListener("blur", function () {
+      console.log(slug.value)
+      slug.value = title.value.replaceAll(' ', '-').toLowerCase();
+      console.log(slug.value)
+
+    });
+</script>
 {% endblock %}

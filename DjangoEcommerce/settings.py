@@ -29,7 +29,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DEBUG') == 'True'
 
 ALLOWED_HOSTS = ['127.0.0.1', 'urchin-app-pwz4d.ondigitalocean.app', 'farmfresh.tacommodity.com', 'localhost', 'farmfresh-9986.onrender.com']
 
@@ -179,8 +179,8 @@ SITE_ID = 1
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
-SECURE_SSL_REDIRECT = True
-# SECURE_SSL_REDIRECT = True
+SECURE_SSL_REDIRECT = os.environ.get('SECURE_SSL') == 'True'
+
 #stripe payment
 STRIPE_KEY = ''
 

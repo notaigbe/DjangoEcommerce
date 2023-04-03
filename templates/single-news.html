@@ -22,7 +22,13 @@
 	<!-- end search arewa -->
 
 	<!-- breadcrumb-section -->
-	<div class="breadcrumb-section breadcrumb-bg">
+	{% if article.category == 'palmoil' %}
+	<div class="breadcrumb-section breadcrumb-bg" style="background-image: url('{% static 'assets/img/Oil.jpg' %}'); background-repeat: no-repeat; background-size: cover;">
+	{% elif article.category == 'honey' %}
+	<div class="breadcrumb-section breadcrumb-bg" style="background-image: url('{% static 'assets/img/bee-keeping.webp' %}'); background-repeat: no-repeat; background-size: cover;">
+	{% elif article.category == 'fish' %}
+	<div class="breadcrumb-section breadcrumb-bg" style="background-image: url('{% static 'assets/img/catfish-bg.jpg' %}'); background-repeat: no-repeat; background-size: cover;">
+	{% endif %}
 		<div class="container">
 			<div class="row">
 				<div class="col-lg-8 offset-lg-2 text-center">
@@ -43,17 +49,17 @@
 				<div class="col-lg-8">
 					<div class="single-article-section">
 						<div class="single-article-text">
-							<div class="single-artcile-bg">
+							<div class="single-artcile-bg d-flex justify-content-center">
 								<img src="{{article.image.url}}">
 							</div>
 							<p class="blog-meta">
-								<span class="author"><i class="fas fa-user"></i> {{ article.author }}</span>
+								<span class="author"><i class="fas fa-user"></i> {{ article.author.first_name }} {{ article.author.last_name }}</span>
 								<span class="date"><i class="fas fa-calendar"></i> {{ article.created_on|naturaltime }}</span>
 							</p>
 							<h2>{{ article.title }}</h2>
 							<p>
 								{% autoescape on %}
-								{{ article.post }}
+								{{ article.post|linebreaksbr }}
 								{% endautoescape %}
 							</p>
 
@@ -117,13 +123,9 @@
 								{% for article in articles %}
 								<li><a href="{% url 'core:article_detail' article.slug %}">{{ article.title }}</a></li>
 								{% endfor %}
-								<li><a href="single-news.html">A man's worth has its season, like tomato.</a></li>
-								<li><a href="single-news.html">Good thoughts bear good fresh juicy fruit.</a></li>
-								<li><a href="single-news.html">Fall in love with the fresh orange</a></li>
-								<li><a href="single-news.html">Why the berries always look delecious</a></li>
 							</ul>
 						</div>
-						<div class="archive-posts">
+						<!--<div class="archive-posts">
 							<h4>Archive Posts</h4>
 							<ul>
 								<li><a href="single-news.html">JAN 2019 (5)</a></li>
@@ -132,15 +134,15 @@
 								<li><a href="single-news.html">SEP 2019 (4)</a></li>
 								<li><a href="single-news.html">DEC 2019 (3)</a></li>
 							</ul>
-						</div>
+						</div>-->
 						<div class="tag-section">
 							<h4>Tags</h4>
 							<ul>
-								<li><a href="single-news.html">Palm Oil</a></li>
-								<li><a href="single-news.html">Honey</a></li>
-								<li><a href="single-news.html">Fish</a></li>
-								<li><a href="single-news.html">Garri</a></li>
-								<li><a href="single-news.html">Farmer</a></li>
+								<li><a href="">Palm Oil</a></li>
+								<li><a href="">Honey</a></li>
+								<li><a href="">Fish</a></li>
+								<li><a href="">Garri</a></li>
+								<li><a href="">Farmer</a></li>
 							</ul>
 						</div>
 					</div>
